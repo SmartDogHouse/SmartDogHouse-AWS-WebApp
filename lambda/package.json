@@ -1,9 +1,9 @@
 {
-  "name": "hello_world",
-  "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
-  "main": "app.js",
-  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
+  "name": "smart-dog-house",
+  "version": "0.0.1",
+  "description": "Smart dog house serverless app for NodeJS",
+  "main": "app.mjs",
+  "repository": "https://github.com/SmartDogHouse/SmartDogHouse-AWS-WebApp",
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
