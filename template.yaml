@@ -10,32 +10,22 @@ Globals:
     MemorySize : 256
 
 
-# More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+# More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 Resources:
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
-      Handler: GetOutOfRangeConsumption.lambdaHandler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.handler
       Runtime: nodejs14.x
       Events:
         HelloWorld:
           Type: Api 
           Properties:
             Path: /hello
-            Method: get
-  GetFoodConsumptionByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Handler: GetWaterConsumptionByDog.handler
-      Runtime: nodejs14.x
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello1
             Method: get
 
 #Outputs:
