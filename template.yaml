@@ -19,7 +19,7 @@ Resources:
       CodeUri: lambda/
       Policies:
       - AmazonDynamoDBFullAccess
-      Handler: app.handler
+      Handler: app.getWaterConsumptionByDog
       Runtime: nodejs14.x
       Events:
         HelloWorld:
@@ -27,6 +27,29 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+  GetFoodConsumptionByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getFoodConsumptionByDog
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /hello1
+            Method: get
+  WaterConsumptionAlarm:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.waterConsumptionAlarm
+      Runtime: nodejs14.x
+
 
 #Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

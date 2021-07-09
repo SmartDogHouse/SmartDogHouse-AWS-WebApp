@@ -1,6 +1,6 @@
 // const axios = require('axios')
 // const url = 'http://checkip.amazonaws.com/';
-
+//JSON.stringify(ranges)+"zz\t")
 
 /**
  *
@@ -21,8 +21,9 @@
   let dbManager = new DynamoDBManager(region)
 
   let statusCode = 200
+  let result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
+  //let result = await dbManager.executeExecuteStatement(queryManager.test());
 
-  let result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog("DOG#c02","22135489940","22135489945"));
   console.info('ExecuteStatement API call has been executed.')
 
   switch (result) {
@@ -48,7 +49,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
   
     let statusCode = 200
   
-    let result = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog("DOG#c02","22135489940","22135489945"));
+    let result = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
     console.info('ExecuteStatement API call has been executed.')
   
     switch (result) {
@@ -82,23 +83,24 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     console.log(tomorrow)
     try {
         let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsWithWaterRange());
-        dogs.array.forEach(element => {
-            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogWaterRanges(element));
-            let values = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog(element,today,tomorrow));
-            let sum = values.reduce((acc,newEl) => acc+newEl)
-            if(sum < ranges[0].daily_water_lower_bound ||  sum > ranges[0].daily_water_upper_bound ){
-                //TODO SEND WEBSITE NOTIFY
+        for (const el of dogs) {
+
+            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogWaterRanges(el.PK));
+            let values = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog(today,tomorrow));
+
+            if (typeof values !== 'undefined' && values.length > 0) {
+                let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
+                if(sum < ranges[0].daily_water_lower_bound ||  sum > ranges[0].daily_water_upper_bound ){
+                    //TODO SEND WEBSITE NOTIFY
+                }
             }
-        });
-        return "Success"
+
+        }
+        return `\t Success \t`
     } catch (err) {
-        return "Error"
+        return `\t Error ${err} \t`
     }
-
-
   };
-
-
 
 class DynamoDBManager {
 
@@ -124,6 +126,19 @@ class DynamoDBManager {
       }
   }
 
+  async executeExecuteStatement2(executeStatementInput) {
+    // Call DynamoDB's executeStatement API
+    try {
+        const executeStatementOutput = await this.dynamoDbClient.executeStatement(executeStatementInput).promise();
+        console.info('ExecuteStatement executed successfully.');
+        return executeStatementOutput
+        // Handle executeStatementOutput
+    } catch (err) {
+        this.handleExecuteStatementError(err);
+        return null
+    }
+}
+
   // Handles errors during ExecuteStatement execution. Use recommendations in error messages below to 
   // add error handling specific to your application use-case. 
   handleExecuteStatementError(err) {
@@ -132,7 +147,7 @@ class DynamoDBManager {
           return;
       }
       if (!err.code) {
-          console.error(`An exception occurred, investigate and configure retry strategy. Error: ${JSON.stringify(err)}`);
+          console.error(`An exception occurred, investigate and configure retry strategy. Error: ${err}`);
           return;
       }
       switch (err.code) {
@@ -222,7 +237,7 @@ class QueryManager {
             "Statement" : 
             `SELECT daily_water_upper_bound, daily_water_lower_bound 
             FROM dogs_logs 
-            WHERE contains(PK, 'DOG#${dog}')
+            WHERE contains(PK, '${dog}')
             AND contains(SK, '#PROFILE#')`
           } 
       }
@@ -234,7 +249,15 @@ class QueryManager {
           "SELECT * FROM dogs_logs WHERE contains(PK, 'LOG#wcons') AND contains(SK, 'DOG#c02') AND (time_stamp BETWEEN '22135489941' AND '22135489943') AND val BETWEEN "+ daily_water_lower_bound +" AND "+ daily_water_upper_bound
         } 
     }
-  
+
+
+    test() {
+        return {
+            "Statement" :
+            `SELECT * FROM dogs_logs WHERE contains(PK,'DOG#')`
+          } 
+      }
+
   
     getWaterConsumptionByDog(dog,lowerTimeS,upperTimeS) {
       return this.getConsumptionByDog("LOG#wcons",dog,lowerTimeS,upperTimeS)
@@ -245,10 +268,10 @@ class QueryManager {
           "Statement" : 
           `SELECT val 
           FROM dogs_logs 
-          WHERE contains(PK, '"${type}"')
-          AND contains(SK, '"${dog}"') 
-          AND (time_stamp BETWEEN '"${lowerTimeS}"' 
-          AND '"${upperTimeS}"')`
+          WHERE contains(PK, '${type}') 
+          AND contains(SK, '${dog}') 
+          AND (time_stamp BETWEEN '${lowerTimeS}' 
+          AND '${upperTimeS}')`
         } 
     }
   
