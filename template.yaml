@@ -49,6 +49,14 @@ Resources:
       - AmazonDynamoDBFullAccess
       Handler: app.waterConsumptionAlarm
       Runtime: nodejs14.x
+  FoodConsumptionAlarm:
+      Type: AWS::Serverless::Function 
+      Properties:
+        CodeUri: lambda/
+        Policies:
+        - AmazonDynamoDBFullAccess
+        Handler: app.foodConsumptionAlarm
+        Runtime: nodejs14.x
 
 
 #Outputs:

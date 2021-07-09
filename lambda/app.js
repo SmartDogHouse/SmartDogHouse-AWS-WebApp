@@ -102,6 +102,40 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     }
   };
 
+  exports.foodConsumptionAlarm = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    var today = new Date()
+    var tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    today = today.toISOString().slice(0, 19) 
+    tomorrow = tomorrow.toISOString().slice(0, 19) 
+    console.log(tomorrow)
+    try {
+        let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsWithFoodRange());
+        for (const el of dogs) {
+
+            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogFoodRanges(el.PK));
+            let values = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog(today,tomorrow));
+
+            if (typeof values !== 'undefined' && values.length > 0) {
+                let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
+                if(sum < ranges[0].daily_food_lower_bound ||  sum > ranges[0].daily_food_upper_bound ){
+                    //TODO SEND WEBSITE NOTIFY
+                }
+            }
+
+        }
+        return `\t Success \t`
+    } catch (err) {
+        return `\t Error ${err} \t`
+    }
+  };
+
 class DynamoDBManager {
 
   constructor(regionName) {
@@ -236,6 +270,28 @@ class QueryManager {
         return {
             "Statement" : 
             `SELECT daily_water_upper_bound, daily_water_lower_bound 
+            FROM dogs_logs 
+            WHERE contains(PK, '${dog}')
+            AND contains(SK, '#PROFILE#')`
+          } 
+      }
+
+      getDogsWithFoodRange() {
+        return {
+            "Statement" : 
+            `SELECT PK
+            FROM dogs_logs
+            WHERE contains(PK, 'DOG#') 
+            AND contains(SK, '#PROFILE#') 
+            AND daily_food_lower_bound>0 
+            AND daily_food_upper_bound<3000`
+          } 
+      }
+
+      getDogFoodRanges(dog) {
+        return {
+            "Statement" : 
+            `SELECT daily_food_upper_bound, daily_food_lower_bound 
             FROM dogs_logs 
             WHERE contains(PK, '${dog}')
             AND contains(SK, '#PROFILE#')`
