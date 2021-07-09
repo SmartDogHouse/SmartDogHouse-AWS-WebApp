@@ -1,3 +1,5 @@
+
+const tableName = "dogs_logs"
 // const axios = require('axios')
 // const url = 'http://checkip.amazonaws.com/';
 //JSON.stringify(ranges)+"zz\t")
@@ -14,32 +16,71 @@
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  * 
  */
- exports.getWaterConsumptionByDog = async (event, context) => {
-
+ exports.setFoodScheduleBySize = async (event, context) => {
+  const AWS = require('aws-sdk')
   const region = 'eu-west-2';
   let queryManager = new QueryManager()
   let dbManager = new DynamoDBManager(region)
 
   let statusCode = 200
-  let result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
+  let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(3));
   //let result = await dbManager.executeExecuteStatement(queryManager.test());
+  const time = "13:00"
+  const grams = 475
+  for (const el of dogs) {
+    const data = {
+        "PK" : `SCHED#${time}`,
+        "SK" : el.PK,
+        "chip_id": el.chip_id,
+        "grams": grams,
+        "schedule_time": time                   
+    }
+    const marshalledData = AWS.DynamoDB.Converter.marshall(data)
+    const params = {
+        "TableName": tableName,
+        "Item": marshalledData,
+      }
+      
+    await dbManager.putItemInDB(params)
 
-  console.info('ExecuteStatement API call has been executed.')
-
-  switch (result) {
-      case null:
-      case "":
-          statusCode = 500;
-          break;
   }
+  console.info('ExecuteStatement API call has been executed.')
 
   const response = {
       statusCode: statusCode,
-      body: result
+      body: "ok"
   };
 
   return response
 };
+
+exports.getWaterConsumptionByDog = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+    let result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
+    //let result = await dbManager.executeExecuteStatement(queryManager.test());
+  
+    console.info('ExecuteStatement API call has been executed.')
+  
+    switch (result) {
+        case null:
+        case "":
+            statusCode = 500;
+            break;
+    }
+  
+    const response = {
+        statusCode: statusCode,
+        body: result
+    };
+  
+    return response
+  };
+
 
 exports.getFoodConsumptionByDog = async (event, context) => {
 
@@ -147,6 +188,10 @@ class DynamoDBManager {
       this.dynamoDbClient = new this.aws.DynamoDB();
   }
 
+  async putItemInDB(obj){
+    await this.dynamoDbClient.putItem(obj).promise()
+  }
+
   async executeExecuteStatement(executeStatementInput) {
       // Call DynamoDB's executeStatement API
       try {
@@ -243,6 +288,15 @@ class DynamoDBManager {
 
 class QueryManager {
     constructor() {}
+
+    getDogsBySize(size) {
+        return {
+            "Statement" : 
+            `SELECT PK, chip_id
+            FROM dogs_logs
+            WHERE dog_size = ${size}`
+          } 
+      }
   
     getDogWaterRanges(dog) {
       return {
