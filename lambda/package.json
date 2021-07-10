@@ -1,10 +1,10 @@
 {
-  "name": "smart-dog-house",
+  "name": "smart-dog-house-lambda",
   "version": "0.0.1",
   "description": "Smart dog house serverless app for NodeJS",
   "main": "app.mjs",
   "repository": "https://github.com/SmartDogHouse/SmartDogHouse-AWS-WebApp",
-  "author": "SAM CLI",
+  "author": "SmartDogHouseTeam",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1"
@@ -13,6 +13,7 @@
     "test": "mocha tests/unit/"
   },
   "devDependencies": {
+    "aws-sdk": "^2.739.0",
     "chai": "^4.2.0",
     "mocha": "^8.2.1"
   }

@@ -73,7 +73,7 @@ const tableName = "dogs_logs"
       await dbManager.putItemInDB(params)*/
   
     }
-    console.info('ExecuteStatement API call has been executed.')
+    console.info('ExecuteStatement APIs call has been executed.')
   
     const response = {
         statusCode: statusCode,
@@ -89,7 +89,7 @@ const tableName = "dogs_logs"
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
-    //let result = await dbManager.executeExecuteStatement(queryManager.test());
+    //let result = await dbManager.executeExecuteStatement(queryManager.test())S;
     const time = "13:00"
     const grams = 475
     const dog = "c02"

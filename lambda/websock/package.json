@@ -1,0 +1,14 @@
+{
+  "name": "smart-dog-house-lambda",
+  "version": "0.0.1",
+  "description": "Smart dog house serverless app for NodeJS, used to serve Websocket from API gateway request",
+  "main": "src/app.js",
+  "author": "SmartDogHouseTeam",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "aws-sdk": "^2.739.0"
+  }
+}

@@ -12,13 +12,16 @@ Globals:
 Parameters:
   TableName:
     Type: String
-    Default: 'SmartDogHouse_Websock_conn'
+    Default: 'SmartDogHouse_Websock_Conn_Table'
     Description: (Required) The name of the new DynamoDB to store connection identifiers for each connected clients. Minimum 3 characters
     MinLength: 3
     MaxLength: 50
     AllowedPattern: ^[A-Za-z_]+$
     ConstraintDescription: 'Required. Can be characters and underscore only. No numbers or special characters allowed.'
-
+  SubscribeTopic:
+    Type: String
+    Default: "topic"
+    Description: (Required) Provide a topic for the IoT rule to query.
 
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -128,11 +131,11 @@ Resources:
 
 
 
-#-----------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------WEBSOCKET---------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------WEBSOCKET---------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
 
   SimpleNotificationWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -184,7 +187,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref SimpleNotificationWebSocket
-      RouteKey: sendmessage
+      RouteKey: KeepAliveMsg
       AuthorizationType: NONE
       OperationName: SendRoute
       Target: !Join
@@ -199,7 +202,7 @@ Resources:
       IntegrationType: AWS_PROXY
       IntegrationUri: 
         Fn::Sub:
-            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${KeepAliveMsgFunction.Arn}/invocations
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
@@ -235,7 +238,6 @@ Resources:
     Properties:
       CodeUri: lambda/websock/
       Handler: Connect.handler
-      MemorySize: 256
       Runtime: nodejs14.x
       Environment:
         Variables:
@@ -256,7 +258,6 @@ Resources:
     Properties:
       CodeUri: lambda/websock/
       Handler: Disconnect.handler
-      MemorySize: 256
       Runtime: nodejs14.x
       Environment:
         Variables:
@@ -272,12 +273,11 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref OnDisconnectFunction
       Principal: apigateway.amazonaws.com
-  SendMessageFunction:
+  KeepAliveMsgFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/websock/
-      Handler: SendMsg.handler
-      MemorySize: 256
+      Handler: KeepAliveMsg.handler
       Runtime: nodejs14.x
       Environment:
         Variables:
@@ -291,14 +291,47 @@ Resources:
           - 'execute-api:ManageConnections'
           Resource:
           - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
-  SendMessagePermission:
+  KeepAliveMsgPermission:
     Type: AWS::Lambda::Permission
     DependsOn:
       - SimpleNotificationWebSocket
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref SendMessageFunction
+      FunctionName: !Ref KeepAliveMsgFunction
       Principal: apigateway.amazonaws.com
+  SendNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/websock/
+      Handler: SendNotifications.handler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref TableName
+      - Statement:
+        - Effect: Allow
+          Action:
+          - 'execute-api:ManageConnections'
+          Resource:
+          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
+      Events:
+        IoT:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: 2016-03-23
+            Sql: !Sub "SELECT * FROM '${SubscribeTopic}'"
+  SendNotificationPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - SimpleNotificationWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SendNotificationFunction
+      Principal: apigateway.amazonaws.com
+    
 
 
 Outputs:
@@ -332,9 +365,9 @@ Outputs:
     Description: "OnDisconnect function ARN"
     Value: !GetAtt OnDisconnectFunction.Arn
 
-  SendMessageFunctionArn:
-    Description: "SendMessage function ARN"
-    Value: !GetAtt SendMessageFunction.Arn
+  KeepAliveMsgFunctionArn:
+    Description: "KeepAliveMsg function ARN"
+    Value: !GetAtt KeepAliveMsgFunction.Arn
 
   WebSocketURI:
     Description: "The WSS Protocol URI to connect to"
