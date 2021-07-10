@@ -13,7 +13,7 @@ exports.handler = async event => {
   try {
     connectionData = await ddb.scan({ TableName: TABLE_NAME, ProjectionExpression: 'connectionId' }).promise();
   } catch (e) {
-    return { statusCode: 500, body: e.stack };
+    return { statusCode: 500, body: {"Error-connecting-to-DB" : e.stack} };
   }
   
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
@@ -31,7 +31,7 @@ exports.handler = async event => {
         console.log(`Found stale connection, deleting ${connectionId}`);
         await ddb.delete({ TableName: TABLE_NAME, Key: { connectionId } }).promise();
       } else {
-        throw e;
+        throw "Error :" +e;
       }
     }
   });
@@ -39,7 +39,7 @@ exports.handler = async event => {
   try {
     await Promise.all(postCalls);
   } catch (e) {
-    return { statusCode: 500, body: "ERR"+e.stack };
+    return { statusCode: 500, body: {"Error-PUSH-notification" : e.stack} };
   }
 
   return { statusCode: 200, body: 'Data sent.' };

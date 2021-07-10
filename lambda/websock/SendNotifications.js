@@ -18,10 +18,10 @@ exports.handler = async event => {
   
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
-    endpoint: "1fvqxwubt8.execute-api.eu-west-2.amazonaws.com/Prod"
+    endpoint: "avehtb1b8a.execute-api.eu-west-2.amazonaws.com/Prod"
   });
   
-  const postData = "ALLLLLLARMONE"//JSON.parse(event.body).data;
+  const postData = JSON.stringify(event);
   
   const postCalls = connectionData.Items.map(async ({ connectionId }) => {
     try {

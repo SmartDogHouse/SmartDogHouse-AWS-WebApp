@@ -187,7 +187,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref SimpleNotificationWebSocket
-      RouteKey: KeepAliveMsg
+      RouteKey: sendmessage
       AuthorizationType: NONE
       OperationName: SendRoute
       Target: !Join
@@ -202,7 +202,7 @@ Resources:
       IntegrationType: AWS_PROXY
       IntegrationUri: 
         Fn::Sub:
-            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${KeepAliveMsgFunction.Arn}/invocations
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
@@ -273,16 +273,17 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref OnDisconnectFunction
       Principal: apigateway.amazonaws.com
-  KeepAliveMsgFunction:
+  SendMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/websock/
-      Handler: KeepAliveMsg.handler
+      Handler: SendMsg.handler
       Runtime: nodejs14.x
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
       Policies:
+      - AmazonDynamoDBFullAccess
       - DynamoDBCrudPolicy:
           TableName: !Ref TableName
       - Statement:
@@ -291,13 +292,13 @@ Resources:
           - 'execute-api:ManageConnections'
           Resource:
           - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
-  KeepAliveMsgPermission:
+  SendMessagePermission:
     Type: AWS::Lambda::Permission
     DependsOn:
       - SimpleNotificationWebSocket
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref KeepAliveMsgFunction
+      FunctionName: !Ref SendMessageFunction
       Principal: apigateway.amazonaws.com
   SendNotificationFunction:
     Type: AWS::Serverless::Function
@@ -331,8 +332,6 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref SendNotificationFunction
       Principal: apigateway.amazonaws.com
-    
-
 
 Outputs:
 # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -365,9 +364,9 @@ Outputs:
     Description: "OnDisconnect function ARN"
     Value: !GetAtt OnDisconnectFunction.Arn
 
-  KeepAliveMsgFunctionArn:
-    Description: "KeepAliveMsg function ARN"
-    Value: !GetAtt KeepAliveMsgFunction.Arn
+  SendMessageFunctionArn:
+    Description: "SendMessage function ARN"
+    Value: !GetAtt SendMessageFunction.Arn
 
   WebSocketURI:
     Description: "The WSS Protocol URI to connect to"
