@@ -16,6 +16,36 @@ const tableName = "dogs_logs"
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  * 
  */
+
+ exports.getEnvironmentLogs = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+    let statusCode = 200
+    const type = "hum" /*or temp */
+    const lower_timestamp = "2021-08-09T11:15:36"
+    const upper_timestamp = "2021-09-08T16:16:08"
+    let result = await dbManager.executeExecuteStatement(queryManager.getEnvLogsInRange(lower_timestamp , upper_timestamp, type));  
+    
+    console.info('ExecuteStatement API call has been executed.')
+  
+    switch (result) {
+        case null:
+        case "":
+            statusCode = 500;
+            break;
+    }
+  
+    const response = {
+        statusCode: statusCode,
+        body: result
+    };
+  
+    return response
+  };
+
+
  exports.setVitalParamRangesBySize = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -542,7 +572,19 @@ class QueryManager {
           } 
       }
 
+
+
+      
   
+    getEnvLogsInRange(lower_timestamp , upper_timestamp, type){
+        return {
+            "Statement" : 
+            `SELECT * 
+            FROM dogs_logs 
+            WHERE contains(PK,'ENV#${type}')
+            AND time_stamp BETWEEN '${lower_timestamp}' AND '${upper_timestamp}'`
+          } 
+    }
     getWaterConsumptionByDog(dog,lowerTimeS,upperTimeS) {
       return this.getConsumptionByDog("LOG#wcons",dog,lowerTimeS,upperTimeS)
     }
