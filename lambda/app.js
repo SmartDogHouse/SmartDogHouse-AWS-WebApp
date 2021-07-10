@@ -16,6 +16,61 @@ const tableName = "dogs_logs"
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  * 
  */
+ exports.setVitalParamRangesBySize = async (event, context) => {
+    const AWS = require('aws-sdk')
+    const region = 'eu-west-2';
+    const size = 2
+    const lower_bound = 36
+    const upper_bound = 40
+    const type = "heartbeat" /*or "temp"*/ 
+    
+    
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
+    //let result = await dbManager.executeExecuteStatement(queryManager.test());
+    
+    for (const el of dogs) {
+        await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(el.chip_id, upper_bound, lower_bound, type));
+ 
+    }
+    console.info('ExecuteStatement API call has been executed.')
+  
+    const response = {
+        statusCode: statusCode,
+        body: "ok"
+    };
+  
+    return response
+  };
+  exports.setVitalParamRangesByDog = async (event, context) => {
+    const AWS = require('aws-sdk')
+    const region = 'eu-west-2';
+    const chip_id = "c01"
+    const lower_bound = 38
+    const upper_bound = 42
+    const type = "temp" /*or "heartbeat"*/ 
+    
+    
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+
+    await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(chip_id, upper_bound, lower_bound, type));
+ 
+    
+    console.info('ExecuteStatement API call has been executed.')
+  
+    const response = {
+        statusCode: statusCode,
+        body: "ok"
+    };
+  
+    return response
+  };
  exports.setConsRangesByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -390,6 +445,15 @@ class DynamoDBManager {
 
 class QueryManager {
     constructor() {}
+    setVitalParamRangesByDog(chip_id, u_bound, l_bound, type) {
+        return {
+            "Statement" : 
+            `UPDATE dogs_logs
+            SET ${type}_upper_bound =${u_bound} 
+            SET ${type}_lower_bound =${l_bound} 
+            WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
+          } 
+      }
     setConsRangesByDog(chip_id, u_bound, l_bound, type) {
         return {
             "Statement" : 
