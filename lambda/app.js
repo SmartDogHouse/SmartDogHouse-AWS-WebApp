@@ -16,6 +16,108 @@ const tableName = "dogs_logs"
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  * 
  */
+ exports.setConsRangesByDog = async (event, context) => {
+    const AWS = require('aws-sdk')
+    const region = 'eu-west-2';
+    const chip_id = "c02"
+    const upper_bound = 88
+    const lower_bound = 54
+    const type = "water" /*or "food"*/ 
+    
+    
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+    await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(chip_id, upper_bound, lower_bound, type)); 
+    
+    console.info('ExecuteStatement API call has been executed.')
+  
+    const response = {
+        statusCode: statusCode,
+        body: "ok"
+    };
+  
+    return response
+  };
+ exports.setConsRangesBySize = async (event, context) => {
+    const AWS = require('aws-sdk')
+    const region = 'eu-west-2';
+    const size = 2
+    const upper_bound = 37
+    const lower_bound = 12
+    const type = "water" /*or "food"*/ 
+    
+    
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
+    //let result = await dbManager.executeExecuteStatement(queryManager.test());
+    
+    for (const el of dogs) {
+        await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(el.chip_id, upper_bound, lower_bound, type));
+ /*     const data = {
+          "PK" : el.PK,
+          "SK" : `#PROFILE#${el.chip_id}`,
+          "daily_food_lower_bound": el.chip_id,
+          "daily_food_upper_bound": grams,                
+      }
+      const marshalledData = AWS.DynamoDB.Converter.marshall(data)
+      const params = {
+          "TableName": tableName,
+          "Item": marshalledData,
+        }
+        
+      await dbManager.putItemInDB(params)*/
+  
+    }
+    console.info('ExecuteStatement API call has been executed.')
+  
+    const response = {
+        statusCode: statusCode,
+        body: "ok"
+    };
+  
+    return response
+  };
+ exports.setFoodScheduleByDog = async (event, context) => {
+    const AWS = require('aws-sdk')
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    let statusCode = 200
+    //let result = await dbManager.executeExecuteStatement(queryManager.test());
+    const time = "13:00"
+    const grams = 475
+    const dog = "c02"
+    
+      const data = {
+          "PK" : `SCHED#${time}`,
+          "SK" : `DOG#${dog}`,
+          "chip_id": dog,
+          "grams": grams,
+          "schedule_time": time                   
+      }
+      const marshalledData = AWS.DynamoDB.Converter.marshall(data)
+      const params = {
+          "TableName": tableName,
+          "Item": marshalledData,
+        }
+        
+      await dbManager.putItemInDB(params)
+
+    console.info('ExecuteStatement API call has been executed.')
+  
+    const response = {
+        statusCode: statusCode,
+        body: "ok"
+    };
+  
+    return response
+  };
  exports.setFoodScheduleBySize = async (event, context) => {
   const AWS = require('aws-sdk')
   const region = 'eu-west-2';
@@ -288,7 +390,15 @@ class DynamoDBManager {
 
 class QueryManager {
     constructor() {}
-
+    setConsRangesByDog(chip_id, u_bound, l_bound, type) {
+        return {
+            "Statement" : 
+            `UPDATE dogs_logs
+            SET daily_${type}_upper_bound =${u_bound} 
+            SET daily_${type}_lower_bound =${l_bound} 
+            WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
+          } 
+      }
     getDogsBySize(size) {
         return {
             "Statement" : 

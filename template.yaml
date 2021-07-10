@@ -12,7 +12,36 @@ Globals:
 
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-Resources:
+Resources:  
+  SetConsRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setConsRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /hello7
+            Method: get
+
+  SetConsRangesByDog:
+      Type: AWS::Serverless::Function 
+      Properties:
+        CodeUri: lambda/
+        Policies:
+        - AmazonDynamoDBFullAccess
+        Handler: app.setConsRangesByDog
+        Runtime: nodejs14.x
+        Events:
+          HelloWorld:
+            Type: Api 
+            Properties:
+              Path: /hello8
+              Method: get
   SetFoodScheduleBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -26,6 +55,20 @@ Resources:
           Type: Api 
           Properties:
             Path: /hello5
+            Method: get
+  SetFoodScheduleByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleByDog
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /hello6
             Method: get
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 
