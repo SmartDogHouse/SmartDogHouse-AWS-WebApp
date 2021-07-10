@@ -22,7 +22,7 @@ const tableName = "dogs_logs"
     const chip_id = "c02"
     const upper_bound = 88
     const lower_bound = 54
-    const type = "water" /*or "food"*/ 
+    const type = "water" /*or "food" */ 
     
     
     let queryManager = new QueryManager()
