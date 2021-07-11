@@ -25,8 +25,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello10
-            Method: get
+            Path: view/logs/env
+            Method: post
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -39,7 +39,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello9
+            Path: set/ranges/vital/dog
             Method: get
   SetVitalParamRangesBySize:
     Type: AWS::Serverless::Function 
@@ -53,7 +53,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello8
+            Path: set/ranges/vital/size
             Method: get
   SetConsRangesBySize:
     Type: AWS::Serverless::Function 
@@ -67,7 +67,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello7
+            Path: set/ranges/cons/size
             Method: get
 
   SetConsRangesByDog:
@@ -82,7 +82,7 @@ Resources:
           HelloWorld:
             Type: Api 
             Properties:
-              Path: /hello8
+              Path: set/ranges/cons/dog
               Method: get
   SetFoodScheduleBySize:
     Type: AWS::Serverless::Function 
@@ -96,7 +96,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello5
+            Path: set/schedule/size
             Method: get
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
@@ -110,7 +110,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello6
+            Path: set/schedule/dog
             Method: get
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 
@@ -124,8 +124,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello
-            Method: get
+            Path: /view/cons/water
+            Method: post
   GetFoodConsumptionByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -138,8 +138,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello1
-            Method: get
+            Path: /view/cons/food
+            Method: post
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:
