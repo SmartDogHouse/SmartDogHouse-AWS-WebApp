@@ -26,7 +26,7 @@ Resources:
           Type: Api 
           Properties:
             Path: view/logs/env
-            Method: post
+            Method: get
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -40,7 +40,7 @@ Resources:
           Type: Api 
           Properties:
             Path: set/ranges/vital/dog
-            Method: get
+            Method: post
   SetVitalParamRangesBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -54,7 +54,7 @@ Resources:
           Type: Api 
           Properties:
             Path: set/ranges/vital/size
-            Method: get
+            Method: post
   SetConsRangesBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -68,7 +68,7 @@ Resources:
           Type: Api 
           Properties:
             Path: set/ranges/cons/size
-            Method: get
+            Method: post
 
   SetConsRangesByDog:
       Type: AWS::Serverless::Function 
@@ -83,7 +83,7 @@ Resources:
             Type: Api 
             Properties:
               Path: set/ranges/cons/dog
-              Method: get
+              Method: post
   SetFoodScheduleBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -97,7 +97,7 @@ Resources:
           Type: Api 
           Properties:
             Path: set/schedule/size
-            Method: get
+            Method: post
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -111,7 +111,7 @@ Resources:
           Type: Api 
           Properties:
             Path: set/schedule/dog
-            Method: get
+            Method: post
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -125,7 +125,7 @@ Resources:
           Type: Api 
           Properties:
             Path: /view/cons/water
-            Method: post
+            Method: get
   GetFoodConsumptionByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -139,7 +139,7 @@ Resources:
           Type: Api 
           Properties:
             Path: /view/cons/food
-            Method: post
+            Method: get
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:
