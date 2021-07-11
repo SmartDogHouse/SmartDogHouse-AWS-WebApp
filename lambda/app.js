@@ -17,6 +17,11 @@ const tableName = "dogs_logs"
  * 
  */
 
+/*{
+    "time_low": '2021-08-09T11:15:36'
+    "time_up": '2021-09-08T16:16:08'
+    "type": 'hum'
+}*/
  exports.getEnvironmentLogs = async (event, context) => {
 
     const region = 'eu-west-2';
@@ -46,6 +51,13 @@ const tableName = "dogs_logs"
   };
 
 
+
+/*{
+    "lower_bound": 36
+    "upper_bound": 41
+    "dog_size": 3
+    "type": 'heartbeat'
+}*/
  exports.setVitalParamRangesBySize = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -75,13 +87,22 @@ const tableName = "dogs_logs"
   
     return response
   };
+
+
+
+  /*{
+    "chip_id": 'c02'
+    "lower_bound": 36
+    "upper_bound": 40
+    "type": 'heartbeat'
+}*/
   exports.setVitalParamRangesByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
     const chip_id = "c01"
     const lower_bound = 38
     const upper_bound = 42
-    const type = "temp" /*or "heartbeat"*/ 
+    const type = "heartbeat" /*or "heartbeat"*/ 
     
     
     let queryManager = new QueryManager()
@@ -101,6 +122,14 @@ const tableName = "dogs_logs"
   
     return response
   };
+ 
+ 
+    /*{
+    "chip_id": 'c02'
+    "lower_bound": 36
+    "upper_bound": 40
+    "type": 'water'
+}*/
  exports.setConsRangesByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -125,6 +154,14 @@ const tableName = "dogs_logs"
   
     return response
   };
+
+
+      /*{
+    "size": 3
+    "lower_bound": 36
+    "upper_bound": 40
+    "type": 'water'
+}*/
  exports.setConsRangesBySize = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -167,6 +204,14 @@ const tableName = "dogs_logs"
   
     return response
   };
+
+
+/*{
+    "chip_id": 'c02'
+    "time": '12:00'
+    "grams": 320
+}*/
+
  exports.setFoodScheduleByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
@@ -174,7 +219,6 @@ const tableName = "dogs_logs"
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
-    //let result = await dbManager.executeExecuteStatement(queryManager.test());
     const time = "13:00"
     const grams = 475
     const dog = "c02"
@@ -203,17 +247,25 @@ const tableName = "dogs_logs"
   
     return response
   };
+
+
+/*{
+    "size": 3
+    "time": '12:00'
+    "grams": 320
+}*/
  exports.setFoodScheduleBySize = async (event, context) => {
   const AWS = require('aws-sdk')
   const region = 'eu-west-2';
   let queryManager = new QueryManager()
   let dbManager = new DynamoDBManager(region)
-
   let statusCode = 200
-  let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(3));
-  //let result = await dbManager.executeExecuteStatement(queryManager.test());
   const time = "13:00"
   const grams = 475
+  const size = 3
+  let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
+  //let result = await dbManager.executeExecuteStatement(queryManager.test());
+
   for (const el of dogs) {
     const data = {
         "PK" : `SCHED#${time}`,
@@ -241,6 +293,11 @@ const tableName = "dogs_logs"
   return response
 };
 
+/*{
+    "chip_id": 'c02'
+    "time": '12:00'
+    "grams": 320
+}*/
 exports.getWaterConsumptionByDog = async (event, context) => {
 
     const region = 'eu-west-2';
