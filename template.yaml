@@ -8,6 +8,14 @@ Globals:
   Function:
     Timeout: 3
     MemorySize : 256
+  Api:
+    EndpointConfiguration: REGIONAL
+    Cors:
+      AllowMethods: "'POST, GET'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+      MaxAge: "'600'"
+#      AllowCredentials: true 
 
 Parameters:
   TableName:
@@ -20,16 +28,60 @@ Parameters:
     ConstraintDescription: 'Required. Can be characters and underscore only. No numbers or special characters allowed.'
   NotificationsTopic:
     Type: String
-    Default: "Notifications"
-    Description: (Required) Provide a topic for the IoT Notification channel.
+    Default: "topic"
+    Description: (Required) Provide a topic for the IoT Notifications channel.
   ESPspecificTopic:
     Type: String
     Default: "ESP"
-    Description: (Required) Provide a topic for the IoT general channel.
+    Description: (Required) Provide a topic for the IoT channel specific.
+    
 
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 Resources:  
+  GetEnvironmentLogs:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getEnvironmentLogs
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: HttpApi 
+          Properties:
+            Path: /view/logs/env
+            Method: get
+
+  SetVitalParamRangesByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesByDog
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/dog
+            Method: post
+  SetVitalParamRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/size
+            Method: post
   SetConsRangesBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -42,8 +94,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello7
-            Method: get
+            Path: /set/ranges/cons/size
+            Method: post
 
   SetConsRangesByDog:
       Type: AWS::Serverless::Function 
@@ -57,8 +109,8 @@ Resources:
           HelloWorld:
             Type: Api 
             Properties:
-              Path: /hello8
-              Method: get
+              Path: /set/ranges/cons/dog
+              Method: post
   SetFoodScheduleBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -71,8 +123,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello5
-            Method: get
+            Path: /set/schedule/size
+            Method: post
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -85,8 +137,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello6
-            Method: get
+            Path: /set/schedule/dog
+            Method: post
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -99,7 +151,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello
+            Path: /view/cons/water
             Method: get
   GetFoodConsumptionByDog:
     Type: AWS::Serverless::Function 
@@ -113,9 +165,8 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /hello1
+            Path: /view/cons/food
             Method: get
-
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:
@@ -133,28 +184,29 @@ Resources:
         Handler: app.foodConsumptionAlarm
         Runtime: nodejs14.x
 
+
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------MQTT-HANDLER------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 
+
   SaveDetection:
-      Type: AWS::Serverless::Function 
-      Properties:
-        CodeUri: lambda/
-        Policies:
-        - AmazonDynamoDBFullAccess
-        Handler: app.saveDetection
-        Runtime: nodejs14.x
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: app.saveDetection
+      Runtime: nodejs14.x
+      Environment:
+      Policies:
+      - AmazonDynamoDBFullAccess
       Events:
         IoT:
           Type: IoTRule
           Properties:
             AwsIotSqlVersion: 2016-03-23
-            Sql: !Sub "SELECT * FROM '${ESPspecificTopic}/#'"
-
-
+            Sql: !Sub "SELECT * FROM '${ESPspecificTopic}'"
 
 
 ##-----------------------------------------------------------------------------------------------------------------------
@@ -350,6 +402,10 @@ Resources:
           Properties:
             AwsIotSqlVersion: 2016-03-23
             Sql: !Sub "SELECT * FROM '${NotificationsTopic}'"
+
+
+
+
   SendNotificationPermission:
     Type: AWS::Lambda::Permission
     DependsOn:
@@ -374,9 +430,10 @@ Outputs:
 #   Value: !GetAtt GetWaterConsumptionByDogRole.Arn
 
 #-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------WEBSOCKET---------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------------------------------------------------------------
   ConnectionsTableArn:
     Description: "Connections table ARN"
     Value: !GetAtt ConnectionsTable.Arn

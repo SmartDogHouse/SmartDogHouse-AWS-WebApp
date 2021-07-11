@@ -44,7 +44,11 @@ const tableName = "dogs_logs"
   
     const response = {
         statusCode: statusCode,
-        body: result
+        body: result,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-type': 'application/json',
+         },
     };
   
     return response
@@ -426,11 +430,15 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     const region = 'eu-west-2';
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
+    const data = JSON.stringify(event);
 
     try {
-        let dogs = await dbManager.executeExecuteStatement(queryManager.saveDetection("c02","112","2021-08-09T15:09:39","temp"));
-        const data = JSON.stringify(event);
-
+        console.log(event.Type)
+        console.log(event.Chip_id)
+        console.log(event.Time)
+        console.log(event.Value)
+        await dbManager.executeExecuteStatement(queryManager.saveDetection(event.Chip_id,event.Value,event.Time,event.Type));
+        console.log("Success")
         return `\t Success \t`
     } catch (err) {
         return `\t Error ${err} \t`

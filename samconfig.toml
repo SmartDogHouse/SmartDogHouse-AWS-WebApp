@@ -8,4 +8,4 @@ s3_prefix = "SmartDogHouse"
 region = "eu-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "TableName=\"SmartDogHouse_Websock_conn\" SubscribeTopic=\"Notifications\""
+parameter_overrides = "TableName=\"SmartDogHouse_Websock_conn\" NotificationsTopic=\"Notifications\" ESPspecificTopic=\"ESP\""
