@@ -38,8 +38,14 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: view/logs/env
+            Path: /view/logs/env
             Method: get
+            Cors:
+              AllowMethods: "'POST, GET'"
+              AllowHeaders: "'*'"
+              AllowOrigin: "'*'"
+              MaxAge: "'600'"
+              AllowCredentials: true 
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -52,7 +58,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: set/ranges/vital/dog
+            Path: /set/ranges/vital/dog
             Method: post
   SetVitalParamRangesBySize:
     Type: AWS::Serverless::Function 
@@ -66,7 +72,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: set/ranges/vital/size
+            Path: /set/ranges/vital/size
             Method: post
   SetConsRangesBySize:
     Type: AWS::Serverless::Function 
@@ -80,7 +86,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: set/ranges/cons/size
+            Path: /set/ranges/cons/size
             Method: post
 
   SetConsRangesByDog:
@@ -95,7 +101,7 @@ Resources:
           HelloWorld:
             Type: Api 
             Properties:
-              Path: set/ranges/cons/dog
+              Path: /set/ranges/cons/dog
               Method: post
   SetFoodScheduleBySize:
     Type: AWS::Serverless::Function 
@@ -109,7 +115,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: set/schedule/size
+            Path: /set/schedule/size
             Method: post
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
@@ -123,7 +129,7 @@ Resources:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: set/schedule/dog
+            Path: /set/schedule/dog
             Method: post
   GetWaterConsumptionByDog:
     Type: AWS::Serverless::Function 

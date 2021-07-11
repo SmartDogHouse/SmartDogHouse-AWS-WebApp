@@ -44,7 +44,11 @@ const tableName = "dogs_logs"
   
     const response = {
         statusCode: statusCode,
-        body: result
+        body: result,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-type': 'application/json',
+         },
     };
   
     return response
