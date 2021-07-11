@@ -1,0 +1,6 @@
+{
+  "body": "{\"message\": \"hello world\"}",
+  "resource": "/{proxy+}",
+  "path": "/path/to/resource",
+  "httpMethod": "GET"
+}

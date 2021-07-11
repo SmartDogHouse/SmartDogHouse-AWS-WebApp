@@ -195,7 +195,7 @@ const tableName = "dogs_logs"
       await dbManager.putItemInDB(params)*/
   
     }
-    console.info('ExecuteStatement API call has been executed.')
+    console.info('ExecuteStatement APIs call has been executed.')
   
     const response = {
         statusCode: statusCode,
