@@ -28,13 +28,12 @@ const tableName = "dogs_logs"
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
     let statusCode = 200
-    const type = "hum" /*or temp */
-    const lower_timestamp = "2021-08-09T11:15:36"
-    const upper_timestamp = "2021-09-08T16:16:08"
+    const type = "temp" /*temp or hum */
+    const lower_timestamp = "1"//"2021-08-09T11:15:36"
+    const upper_timestamp = "3" //"2021-09-08T16:16:08"
     let result = await dbManager.executeExecuteStatement(queryManager.getEnvLogsInRange(lower_timestamp , upper_timestamp, type));  
-    
     console.info('ExecuteStatement API call has been executed.')
-  
+
     switch (result) {
         case null:
         case "":
@@ -44,7 +43,7 @@ const tableName = "dogs_logs"
   
     const response = {
         statusCode: statusCode,
-        body: result,
+        body: JSON.stringify(result),
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Content-type': 'application/json',

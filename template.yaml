@@ -40,12 +40,7 @@ Resources:
           Properties:
             Path: /view/logs/env
             Method: get
-            Cors:
-              AllowMethods: "'POST, GET'"
-              AllowHeaders: "'*'"
-              AllowOrigin: "'*'"
-              MaxAge: "'600'"
-              AllowCredentials: true 
+
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
