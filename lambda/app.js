@@ -421,6 +421,22 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     }
   };
 
+  exports.saveDetection = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+
+    try {
+        let dogs = await dbManager.executeExecuteStatement(queryManager.saveDetection("c02","112","2021-08-09T15:09:39","temp"));
+        const data = JSON.stringify(event);
+
+        return `\t Success \t`
+    } catch (err) {
+        return `\t Error ${err} \t`
+    }
+  };
+
 class DynamoDBManager {
 
   constructor(regionName) {
@@ -661,6 +677,20 @@ class QueryManager {
     getFoodConsumptionByDog(dog,lowerTimeS,upperTimeS) {
       return this.getConsumptionByDog("LOG#fcons",dog,lowerTimeS,upperTimeS)
     }
+
+    saveDetection(chip_id, value, time, type) {
+        return {
+            "Statement" : 
+            `INSERT INTO 
+            dogs_logs value {
+            'PK' : 'LOG#${type}#${time}',
+            'SK' : 'DOG#${chip_id}', 
+            'chip_id': '${chip_id}',
+            'time_stamp': '${time}', 
+            'type': '${type}', 
+            'val': ${value}}`
+          } 
+      }
   }
     
   
