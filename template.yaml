@@ -139,6 +139,7 @@ Resources:
           Properties:
             Path: /set/schedule/dog
             Method: post
+
   GetLogsByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -152,6 +153,21 @@ Resources:
           Type: Api 
           Properties:
             Path: /view/logs/dog
+            Method: get
+
+  GetDogs:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getDogs
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /view/dogs
             Method: get
   # GetFoodConsumptionByDog:
   #   Type: AWS::Serverless::Function 

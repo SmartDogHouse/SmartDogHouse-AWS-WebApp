@@ -54,7 +54,34 @@ const tableName = "dogs_logs"
     return response
   };
 
+  
+  exports.getDogs = async (event, context) => {
 
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+    let statusCode = 200
+    let result = await dbManager.executeExecuteStatement(queryManager.getDogs());  
+    console.info('ExecuteStatement API call has been executed.')
+
+    switch (result) {
+        case null:
+        case "":
+            statusCode = 500;
+            break;
+    }
+  
+    const response = {
+        statusCode: statusCode,
+        body: JSON.stringify(result),
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-type': '*',
+         },
+    };
+  
+    return response
+  };
 
 /*{
     "lower_bound": 36
@@ -598,7 +625,16 @@ class QueryManager {
             WHERE dog_size = ${size}`
           } 
       }
-  
+    
+    getDogs(){
+        return {
+            "Statement" : 
+            `SELECT *
+            FROM dogs_logs
+            WHERE contains(PK, 'DOG#') AND contains(SK, '#PROFILE#')`
+          } 
+    }
+
     getDogWaterRanges(dog) {
       return {
           "Statement" : 
