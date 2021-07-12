@@ -3,7 +3,8 @@ const tableName = "dogs_logs"
 // const axios = require('axios')
 // const url = 'http://checkip.amazonaws.com/';
 //JSON.stringify(ranges)+"zz\t")
-
+//console.log(event.pathParameters)
+//console.log(event.queryStringParameters)
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -46,7 +47,7 @@ const tableName = "dogs_logs"
         body: JSON.stringify(result),
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Content-type': 'application/json',
+            'Content-type': '*',
          },
     };
   
@@ -306,13 +307,16 @@ exports.getWaterConsumptionByDog = async (event, context) => {
     const region = 'eu-west-2';
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
-  
+    let result
     let statusCode = 200
-    let result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
-    //let result = await dbManager.executeExecuteStatement(queryManager.test());
-  
-    console.info('ExecuteStatement API call has been executed.')
-  
+    console.log(event.queryStringParameters)
+    if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT){
+        result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog(`DOG#${event.queryStringParameters.dog}`,event.queryStringParameters.lowerT,event.queryStringParameters.upperT));
+        console.info('ExecuteStatement API call has been executed.')
+    }else{
+        statusCode = 500;
+    }
+
     switch (result) {
         case null:
         case "":
@@ -322,7 +326,11 @@ exports.getWaterConsumptionByDog = async (event, context) => {
   
     const response = {
         statusCode: statusCode,
-        body: result
+        "headers":{
+            "Access-Control-Allow-Origin":"*",
+            "Access-Control-Allow-Methods":"*"
+         },
+        body: JSON.stringify(result)
     };
   
     return response
@@ -334,12 +342,16 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     const region = 'eu-west-2';
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
-  
+    let result
     let statusCode = 200
-  
-    let result = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog("DOG#c02","2021-06-04T10:30:47","2021-07-08T16:16:08"));
-    console.info('ExecuteStatement API call has been executed.')
-  
+    console.log(event.queryStringParameters)
+    if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT){
+        result = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog(`DOG#${event.queryStringParameters.dog}`,event.queryStringParameters.lowerT,event.queryStringParameters.upperT));
+        console.info('ExecuteStatement API call has been executed.')
+    }else{
+        statusCode = 500;
+    }
+
     switch (result) {
         case null:
         case "":
@@ -349,7 +361,11 @@ exports.getFoodConsumptionByDog = async (event, context) => {
   
     const response = {
         statusCode: statusCode,
-        body: result
+        "headers":{
+            "Access-Control-Allow-Origin":"*",
+            "Access-Control-Allow-Methods":"*"
+         },
+        body: JSON.stringify(result)
     };
   
     return response
@@ -418,6 +434,26 @@ exports.getFoodConsumptionByDog = async (event, context) => {
             }
 
         }
+        return `\t Success \t`
+    } catch (err) {
+        return `\t Error ${err} \t`
+    }
+  };
+
+  exports.saveDetection = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+    const data = JSON.stringify(event);
+
+    try {
+        console.log(event.Type)
+        console.log(event.Chip_id)
+        console.log(event.Time)
+        console.log(event.Value)
+        await dbManager.executeExecuteStatement(queryManager.saveDetection(event.Chip_id,event.Value,event.Time,event.Type));
+        console.log("Success")
         return `\t Success \t`
     } catch (err) {
         return `\t Error ${err} \t`
@@ -652,7 +688,7 @@ class QueryManager {
     getConsumptionByDog(type,dog,lowerTimeS,upperTimeS) {
       return {
           "Statement" : 
-          `SELECT val 
+          `SELECT val,time_stamp 
           FROM dogs_logs 
           WHERE contains(PK, '${type}') 
           AND contains(SK, '${dog}') 
@@ -664,6 +700,20 @@ class QueryManager {
     getFoodConsumptionByDog(dog,lowerTimeS,upperTimeS) {
       return this.getConsumptionByDog("LOG#fcons",dog,lowerTimeS,upperTimeS)
     }
+
+    saveDetection(chip_id, value, time, type) {
+        return {
+            "Statement" : 
+            `INSERT INTO 
+            dogs_logs value {
+            'PK' : 'LOG#${type}#${time}',
+            'SK' : 'DOG#${chip_id}', 
+            'chip_id': '${chip_id}',
+            'time_stamp': '${time}', 
+            'type': '${type}', 
+            'val': ${value}}`
+          } 
+      }
   }
     
   
