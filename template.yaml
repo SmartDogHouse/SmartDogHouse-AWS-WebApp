@@ -55,7 +55,6 @@ Resources:
           Properties:
             Path: /view/logs/env
             Method: get
-
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
@@ -98,7 +97,6 @@ Resources:
           Properties:
             Path: /set/ranges/cons/size
             Method: post
-
   SetConsRangesByDog:
       Type: AWS::Serverless::Function 
       Properties:
@@ -141,34 +139,34 @@ Resources:
           Properties:
             Path: /set/schedule/dog
             Method: post
-  GetWaterConsumptionByDog:
+  GetLogsByDog:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
       Policies:
       - AmazonDynamoDBFullAccess
-      Handler: app.getWaterConsumptionByDog
+      Handler: app.getLogsByDog
       Runtime: nodejs14.x
       Events:
         HelloWorld:
           Type: Api 
           Properties:
-            Path: /view/cons/water
+            Path: /view/logs/dog
             Method: get
-  GetFoodConsumptionByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.getFoodConsumptionByDog
-      Runtime: nodejs14.x
-      Events:
-        HelloWorld:
-          Type: Api 
-          Properties:
-            Path: /view/cons/food
-            Method: get
+  # GetFoodConsumptionByDog:
+  #   Type: AWS::Serverless::Function 
+  #   Properties:
+  #     CodeUri: lambda/
+  #     Policies:
+  #     - AmazonDynamoDBFullAccess
+  #     Handler: app.getFoodConsumptionByDog
+  #     Runtime: nodejs14.x
+  #     Events:
+  #       HelloWorld:
+  #         Type: Api 
+  #         Properties:
+  #           Path: /view/cons/food
+  #           Method: get
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:

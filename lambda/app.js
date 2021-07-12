@@ -302,16 +302,17 @@ const tableName = "dogs_logs"
     "time": '12:00'
     "grams": 320
 }*/
-exports.getWaterConsumptionByDog = async (event, context) => {
+exports.getLogsByDog = async (event, context) => {
 
     const region = 'eu-west-2';
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
     let result
     let statusCode = 200
+
     console.log(event.queryStringParameters)
     if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT){
-        result = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog(`DOG#${event.queryStringParameters.dog}`,event.queryStringParameters.lowerT,event.queryStringParameters.upperT));
+        result = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(event.queryStringParameters.type,`DOG#${event.queryStringParameters.dog}`,event.queryStringParameters.lowerT,event.queryStringParameters.upperT));
         console.info('ExecuteStatement API call has been executed.')
     }else{
         statusCode = 500;
@@ -336,7 +337,7 @@ exports.getWaterConsumptionByDog = async (event, context) => {
     return response
   };
 
-
+/*
 exports.getFoodConsumptionByDog = async (event, context) => {
 
     const region = 'eu-west-2';
@@ -371,7 +372,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     return response
   };
 
-
+*/
   exports.waterConsumptionAlarm = async (event, context) => {
 
     const region = 'eu-west-2';
@@ -381,7 +382,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     var today = new Date()
     var tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    
+    const type = 'wcons'
     today = today.toISOString().slice(0, 19) 
     tomorrow = tomorrow.toISOString().slice(0, 19) 
     console.log(tomorrow)
@@ -390,7 +391,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
         for (const el of dogs) {
 
             let ranges = await dbManager.executeExecuteStatement(queryManager.getDogWaterRanges(el.PK));
-            let values = await dbManager.executeExecuteStatement(queryManager.getWaterConsumptionByDog(today,tomorrow));
+            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type,el.PK,today,tomorrow));
 
             if (typeof values !== 'undefined' && values.length > 0) {
                 let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
@@ -415,7 +416,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
     var today = new Date()
     var tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    
+    const type = 'fcons'
     today = today.toISOString().slice(0, 19) 
     tomorrow = tomorrow.toISOString().slice(0, 19) 
     console.log(tomorrow)
@@ -424,7 +425,7 @@ exports.getFoodConsumptionByDog = async (event, context) => {
         for (const el of dogs) {
 
             let ranges = await dbManager.executeExecuteStatement(queryManager.getDogFoodRanges(el.PK));
-            let values = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog(today,tomorrow));
+            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type, el.PK,today,tomorrow));
 
             if (typeof values !== 'undefined' && values.length > 0) {
                 let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
@@ -681,24 +682,17 @@ class QueryManager {
             AND time_stamp BETWEEN '${lower_timestamp}' AND '${upper_timestamp}'`
           } 
     }
-    getWaterConsumptionByDog(dog,lowerTimeS,upperTimeS) {
-      return this.getConsumptionByDog("LOG#wcons",dog,lowerTimeS,upperTimeS)
-    }
   
-    getConsumptionByDog(type,dog,lowerTimeS,upperTimeS) {
+    getLogsByDog(type,dog,lowerTimeS,upperTimeS) {
       return {
           "Statement" : 
           `SELECT val,time_stamp 
           FROM dogs_logs 
-          WHERE contains(PK, '${type}') 
+          WHERE contains(PK, 'LOG#${type}') 
           AND contains(SK, '${dog}') 
           AND (time_stamp BETWEEN '${lowerTimeS}' 
           AND '${upperTimeS}')`
         } 
-    }
-  
-    getFoodConsumptionByDog(dog,lowerTimeS,upperTimeS) {
-      return this.getConsumptionByDog("LOG#fcons",dog,lowerTimeS,upperTimeS)
     }
 
     saveDetection(chip_id, value, time, type) {
