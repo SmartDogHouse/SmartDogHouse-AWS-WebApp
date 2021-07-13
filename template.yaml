@@ -41,6 +41,7 @@ Parameters:
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 Resources:  
+########GET########
   GetEnvironmentLogs:
     Type: AWS::Serverless::Function 
     Properties:
@@ -55,7 +56,8 @@ Resources:
           Properties:
             Path: /view/logs/env
             Method: get
-  SetVitalParamRangesByDog:
+
+            SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
@@ -69,6 +71,50 @@ Resources:
           Properties:
             Path: /set/ranges/vital/dog
             Method: post
+
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleByDog
+      Runtime: nodejs14.x
+      Events:
+        FoodScheduleByDogSetting:
+          Type: Api 
+          Properties:
+            Path: /set/schedule/dog
+            Method: post
+  GetDogs:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getDogs
+      Runtime: nodejs14.x
+      Events:
+        Dogs:
+          Type: Api 
+          Properties:
+            Path: /view/dogs
+            Method: get
+  GetTotalCosumption:
+  GetLogsByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getLogsByDog
+      Runtime: nodejs14.x
+      Events:
+        LogsByDog:
+          Type: Api 
+          Properties:
+            Path: /view/logs/dog
+            Method: get
+########POST########
   SetVitalParamRangesBySize:
     Type: AWS::Serverless::Function 
     Properties:
@@ -126,50 +172,7 @@ Resources:
             Path: /set/schedule/size
             Method: post
   SetFoodScheduleByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setFoodScheduleByDog
-      Runtime: nodejs14.x
-      Events:
-        FoodScheduleByDogSetting:
-          Type: Api 
-          Properties:
-            Path: /set/schedule/dog
-            Method: post
 
-  GetLogsByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.getLogsByDog
-      Runtime: nodejs14.x
-      Events:
-        LogsByDog:
-          Type: Api 
-          Properties:
-            Path: /view/logs/dog
-            Method: get
-
-  GetDogs:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.getDogs
-      Runtime: nodejs14.x
-      Events:
-        Dogs:
-          Type: Api 
-          Properties:
-            Path: /view/dogs
-            Method: get
-  GetTotalCosumption:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
@@ -183,21 +186,7 @@ Resources:
           Properties:
             Path: /view/logs/dog/total
             Method: get
-
-  # GetFoodConsumptionByDog:
-  #   Type: AWS::Serverless::Function 
-  #   Properties:
-  #     CodeUri: lambda/
-  #     Policies:
-  #     - AmazonDynamoDBFullAccess
-  #     Handler: app.getFoodConsumptionByDog
-  #     Runtime: nodejs14.x
-  #     Events:
-  #       HelloWorld:
-  #         Type: Api 
-  #         Properties:
-  #           Path: /view/cons/food
-  #           Method: get
+########NONE########
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:
