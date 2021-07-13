@@ -1,13 +1,13 @@
-// Copyright 2018-2020Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
-
-const AWS = require('aws-sdk');
-
-const ddb = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10', region: process.env.AWS_REGION });
-
-const { TABLE_NAME } = process.env;
 
 exports.handler = async event => {
+
+  const AWS = require('aws-sdk');
+
+  const ddb = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10', region: process.env.AWS_REGION });
+  
+  const { TABLE_NAME } = process.env;
+
+
   let connectionData;
   
   try {
@@ -18,7 +18,7 @@ exports.handler = async event => {
   
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
-    endpoint: "avehtb1b8a.execute-api.eu-west-2.amazonaws.com/Prod"
+    endpoint: "c07eionjgd.execute-api.eu-west-2.amazonaws.com/Prod"
   });
   
   const postData = JSON.stringify(event);
