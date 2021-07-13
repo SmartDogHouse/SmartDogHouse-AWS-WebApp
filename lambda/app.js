@@ -361,6 +361,7 @@ exports.getLogsByDog = async (event, context) => {
     return response
   };
 
+  /*To schedule*/
   exports.waterConsumptionAlarm = async (event, context) => {
 
     const region = 'eu-west-2';
