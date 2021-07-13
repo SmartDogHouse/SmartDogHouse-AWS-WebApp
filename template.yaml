@@ -169,6 +169,21 @@ Resources:
           Properties:
             Path: /view/dogs
             Method: get
+  GetTotalCosumption:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getTotalCosumption
+      Runtime: nodejs14.x
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /view/logs/dog/total
+            Method: get
+
   # GetFoodConsumptionByDog:
   #   Type: AWS::Serverless::Function 
   #   Properties:
