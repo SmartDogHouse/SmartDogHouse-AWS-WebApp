@@ -50,7 +50,7 @@ Resources:
       Handler: app.getEnvironmentLogs
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        EnvironmentLogs:
           Type: HttpApi 
           Properties:
             Path: /view/logs/env
@@ -64,7 +64,7 @@ Resources:
       Handler: app.setVitalParamRangesByDog
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        VitalParamRangesByDogSetting:
           Type: Api 
           Properties:
             Path: /set/ranges/vital/dog
@@ -78,7 +78,7 @@ Resources:
       Handler: app.setVitalParamRangesBySize
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        VitalParamRangesBySizeSetting:
           Type: Api 
           Properties:
             Path: /set/ranges/vital/size
@@ -92,7 +92,7 @@ Resources:
       Handler: app.setConsRangesBySize
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        ConsRangesBySizeSetting:
           Type: Api 
           Properties:
             Path: /set/ranges/cons/size
@@ -106,7 +106,7 @@ Resources:
         Handler: app.setConsRangesByDog
         Runtime: nodejs14.x
         Events:
-          HelloWorld:
+          ConsRangesByDogSetting:
             Type: Api 
             Properties:
               Path: /set/ranges/cons/dog
@@ -120,7 +120,7 @@ Resources:
       Handler: app.setFoodScheduleBySize
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        FoodScheduleBySizeSetting:
           Type: Api 
           Properties:
             Path: /set/schedule/size
@@ -134,7 +134,7 @@ Resources:
       Handler: app.setFoodScheduleByDog
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        FoodScheduleByDogSetting:
           Type: Api 
           Properties:
             Path: /set/schedule/dog
@@ -149,7 +149,7 @@ Resources:
       Handler: app.getLogsByDog
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        LogsByDog:
           Type: Api 
           Properties:
             Path: /view/logs/dog
@@ -164,7 +164,7 @@ Resources:
       Handler: app.getDogs
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        Dogs:
           Type: Api 
           Properties:
             Path: /view/dogs
