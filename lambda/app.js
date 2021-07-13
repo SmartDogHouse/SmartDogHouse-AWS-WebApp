@@ -21,7 +21,8 @@ const tableName = "dogs_logs"
 /*{
     "time_low": '2021-08-09T11:15:36'
     "time_up": '2021-09-08T16:16:08'
-    "type": 'hum'
+    "type": 'hum' 
+    allowed types: hum, temp
 }*/
  exports.getEnvironmentLogs = async (event, context) => {
 
