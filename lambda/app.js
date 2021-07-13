@@ -322,8 +322,9 @@ const tableName = "dogs_logs"
 
 /*{
     "chip_id": 'c02'
-    "time": '12:00'
-    "grams": 320
+    "upperT": '12:00'
+    "lowerT": 320
+    "type": 'hb'
 }*/
 exports.getLogsByDog = async (event, context) => {
 
