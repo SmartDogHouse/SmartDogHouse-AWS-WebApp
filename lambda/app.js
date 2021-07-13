@@ -359,42 +359,6 @@ exports.getLogsByDog = async (event, context) => {
     return response
   };
 
-/*
-exports.getFoodConsumptionByDog = async (event, context) => {
-
-    const region = 'eu-west-2';
-    let queryManager = new QueryManager()
-    let dbManager = new DynamoDBManager(region)
-    let result
-    let statusCode = 200
-    console.log(event.queryStringParameters)
-    if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT){
-        result = await dbManager.executeExecuteStatement(queryManager.getFoodConsumptionByDog(`DOG#${event.queryStringParameters.dog}`,event.queryStringParameters.lowerT,event.queryStringParameters.upperT));
-        console.info('ExecuteStatement API call has been executed.')
-    }else{
-        statusCode = 500;
-    }
-
-    switch (result) {
-        case null:
-        case "":
-            statusCode = 500;
-            break;
-    }
-  
-    const response = {
-        statusCode: statusCode,
-        "headers":{
-            "Access-Control-Allow-Origin":"*",
-            "Access-Control-Allow-Methods":"*"
-         },
-        body: JSON.stringify(result)
-    };
-  
-    return response
-  };
-
-*/
   exports.waterConsumptionAlarm = async (event, context) => {
 
     const region = 'eu-west-2';
@@ -428,6 +392,51 @@ exports.getFoodConsumptionByDog = async (event, context) => {
         return `\t Error ${err} \t`
     }
   };
+
+  exports.getTotalCosumption = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+
+    var statusCode = 200
+
+    if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT && event.queryStringParameters.dog){
+        var data = event.queryStringParameters
+        var waterConsumptio = 0
+        var foodConsumptio = 0
+        try {
+             waterConsumptio = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("wcons",data.dog,data.lowerT,data.upperT))
+             foodConsumptio = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("fcons",data.dog,data.lowerT,data.upperT))
+             if(Object.values(waterConsumptio).length > 0){
+                waterConsumptio = Object.values(waterConsumptio).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
+             }else{
+                waterConsumptio = 0
+             }
+             if(Object.values(foodConsumptio).length > 0){
+                foodConsumptio = Object.values(foodConsumptio).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
+             }else{
+                foodConsumptio = 0
+             }
+
+            } catch (err) {
+            console.log(err)
+            statusCode = 500;
+        }
+    }else{
+        statusCode = 500;
+    }
+    const response = {
+        statusCode: statusCode,
+        "headers":{
+            "Access-Control-Allow-Origin":"*",
+            "Access-Control-Allow-Methods":"*"
+         },
+        body: JSON.stringify({"waterTotal": waterConsumptio, "foodTotal": foodConsumptio})
+    };
+    return response
+  };
+
 
   exports.foodConsumptionAlarm = async (event, context) => {
 
