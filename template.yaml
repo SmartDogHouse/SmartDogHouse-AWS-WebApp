@@ -48,6 +48,8 @@ Parameters:
 ##-----------------------------------------------------------------------------------------------------------------------
 
 Resources:  
+########GET########
+
   GetEnvironmentLogs:
     Type: AWS::Serverless::Function 
     Properties:
@@ -62,104 +64,20 @@ Resources:
           Properties:
             Path: /view/logs/env
             Method: get
-  SetVitalParamRangesByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setVitalParamRangesByDog
-      Runtime: nodejs14.x
-      Events:
-        VitalParamRangesByDogSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/vital/dog
-            Method: post
-  SetVitalParamRangesBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setVitalParamRangesBySize
-      Runtime: nodejs14.x
-      Events:
-        VitalParamRangesBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/vital/size
-            Method: post
-  SetConsRangesBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setConsRangesBySize
-      Runtime: nodejs14.x
-      Events:
-        ConsRangesBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/cons/size
-            Method: post
-  SetConsRangesByDog:
-      Type: AWS::Serverless::Function 
-      Properties:
-        CodeUri: lambda/
-        Policies:
-        - AmazonDynamoDBFullAccess
-        Handler: app.setConsRangesByDog
-        Runtime: nodejs14.x
-        Events:
-          ConsRangesByDogSetting:
-            Type: Api 
-            Properties:
-              Path: /set/ranges/cons/dog
-              Method: post
-  SetFoodScheduleBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setFoodScheduleBySize
-      Runtime: nodejs14.x
-      Events:
-        FoodScheduleBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/schedule/size
-            Method: post
-  SetFoodScheduleByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setFoodScheduleByDog
-      Runtime: nodejs14.x
-      Events:
-        FoodScheduleByDogSetting:
-          Type: Api 
-          Properties:
-            Path: /set/schedule/dog
-            Method: post
 
-  GetLogsByDog:
+  GetTotalCosumption:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
       Policies:
       - AmazonDynamoDBFullAccess
-      Handler: app.getLogsByDog
+      Handler: app.getTotalCosumption
       Runtime: nodejs14.x
       Events:
-        LogsByDog:
+        HelloWorld:
           Type: Api 
           Properties:
-            Path: /view/logs/dog
+            Path: /view/logs/dog/total
             Method: get
 
   GetDogs:
@@ -176,36 +94,113 @@ Resources:
           Properties:
             Path: /view/dogs
             Method: get
-  GetTotalCosumption:
+
+  GetLogsByDog:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
       Policies:
       - AmazonDynamoDBFullAccess
-      Handler: app.getTotalCosumption
+      Handler: app.getLogsByDog
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        LogsByDog:
           Type: Api 
           Properties:
-            Path: /view/logs/dog/total
+            Path: /view/logs/dog
             Method: get
+            
+########POST########
 
-  # GetFoodConsumptionByDog:
-  #   Type: AWS::Serverless::Function 
-  #   Properties:
-  #     CodeUri: lambda/
-  #     Policies:
-  #     - AmazonDynamoDBFullAccess
-  #     Handler: app.getFoodConsumptionByDog
-  #     Runtime: nodejs14.x
-  #     Events:
-  #       HelloWorld:
-  #         Type: Api 
-  #         Properties:
-  #           Path: /view/cons/food
-  #           Method: get
+  SetFoodScheduleByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleByDog
+      Runtime: nodejs14.x
+      Events:
+        FoodScheduleByDogSetting:
+          Type: Api 
+          Properties:
+            Path: /set/schedule/dog
+            Method: post
 
+  SetVitalParamRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        VitalParamRangesBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/size
+            Method: post
+
+  SetConsRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setConsRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        ConsRangesBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/cons/size
+            Method: post
+
+  SetConsRangesByDog:
+      Type: AWS::Serverless::Function 
+      Properties:
+        CodeUri: lambda/
+        Policies:
+        - AmazonDynamoDBFullAccess
+        Handler: app.setConsRangesByDog
+        Runtime: nodejs14.x
+        Events:
+          ConsRangesByDogSetting:
+            Type: Api 
+            Properties:
+              Path: /set/ranges/cons/dog
+              Method: post
+
+  SetFoodScheduleBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleBySize
+      Runtime: nodejs14.x
+      Events:
+        FoodScheduleBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/schedule/size
+            Method: post
+
+  SetVitalParamRangesByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesByDog
+      Runtime: nodejs14.x
+      Events:
+        VitalParamRangesByDogSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/dog
+            Method: post
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
