@@ -217,33 +217,39 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
       Handler: app.waterConsumptionAlarm
       Runtime: nodejs14.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - Statement:
+        - Effect: Allow
+          Action:
+          - 'execute-api:ManageConnections'
+          Resource:
+          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
       Events:
         CWScheduleWaterConsumption:
           Type: Schedule
-          Properties:
-            Schedule: 'rate(5 minutes)'
+          Properties: #'rate(2 minutes)'
+            Schedule: 'cron(0 0 * * ? *)'
             Name: WaterConsumptionAlarmSchedule
-            Description: The function check at midnigth the day water consumption for anomalies
+            Description: The function check at midnigth the day water consumption in serch anomalies
             Enabled: false
 
   FoodConsumptionAlarm:
       Type: AWS::Serverless::Function 
       Properties:
         CodeUri: lambda/
-        Policies:
-        - AmazonDynamoDBFullAccess
         Handler: app.foodConsumptionAlarm
         Runtime: nodejs14.x
         Environment:
           Variables:
             TABLE_NAME: !Ref TableName
         Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
+        - AmazonDynamoDBFullAccess
         - Statement:
           - Effect: Allow
             Action:
@@ -253,11 +259,12 @@ Resources:
         Events:
           CWScheduleFoodConsumption:
             Type: Schedule
-            Properties:
-              Schedule: 'rate(2 minutes)'
+            Properties: #'rate(2 minutes)'
+              Schedule: 'cron(0 0 * * ? *)'
               Name: FoodConsumptionAlarmSchedule
-              Description: The function check at midnigth the day food consumption for anomalies
-              Enabled: true
+              Description: The function check at midnigth the day food consumption in serch anomalies
+              Enabled: false
+
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
