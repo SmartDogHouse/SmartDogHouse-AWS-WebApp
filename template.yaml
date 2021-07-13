@@ -30,7 +30,7 @@ Parameters:
     ConstraintDescription: 'Required. Can be characters and underscore only. No numbers or special characters allowed.'
   NotificationsTopic:
     Type: String
-    Default: "topic"
+    Default: "Notifications"
     Description: (Required) Provide a topic for the IoT Notifications channel.
   ESPspecificTopic:
     Type: String
