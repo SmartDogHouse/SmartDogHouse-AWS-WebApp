@@ -40,6 +40,13 @@ Parameters:
 
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------REST-API-TRIGGERED---------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+
 Resources:  
 ########GET########
   GetEnvironmentLogs:
@@ -186,7 +193,13 @@ Resources:
           Properties:
             Path: /view/logs/dog/total
             Method: get
-########NONE########
+
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------CRONO-TRIGGERED---------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------
+
   WaterConsumptionAlarm:
     Type: AWS::Serverless::Function 
     Properties:
@@ -195,6 +208,15 @@ Resources:
       - AmazonDynamoDBFullAccess
       Handler: app.waterConsumptionAlarm
       Runtime: nodejs14.x
+      Events:
+        CWScheduleWaterConsumption:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(5 minutes)'
+            Name: WaterConsumptionAlarmSchedule
+            Description: The function check at midnigth the day water consumption for anomalies
+            Enabled: false
+
   FoodConsumptionAlarm:
       Type: AWS::Serverless::Function 
       Properties:
@@ -203,11 +225,30 @@ Resources:
         - AmazonDynamoDBFullAccess
         Handler: app.foodConsumptionAlarm
         Runtime: nodejs14.x
-
+        Environment:
+          Variables:
+            TABLE_NAME: !Ref TableName
+        Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+        - Statement:
+          - Effect: Allow
+            Action:
+            - 'execute-api:ManageConnections'
+            Resource:
+            - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
+        Events:
+          CWScheduleFoodConsumption:
+            Type: Schedule
+            Properties:
+              Schedule: 'rate(2 minutes)'
+              Name: FoodConsumptionAlarmSchedule
+              Description: The function check at midnigth the day food consumption for anomalies
+              Enabled: true
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
-##-----------------------------------------------MQTT-HANDLER------------------------------------------------------------
+##-----------------------------------------------MQTT-TRIGGERED----------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 
@@ -231,7 +272,7 @@ Resources:
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
-##-----------------------------------------------WEBSOCKET---------------------------------------------------------------
+##-----------------------------------------------WEBSOCKET-TRIGGERED-----------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 
