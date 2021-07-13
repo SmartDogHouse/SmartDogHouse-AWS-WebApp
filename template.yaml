@@ -30,7 +30,7 @@ Parameters:
     ConstraintDescription: 'Required. Can be characters and underscore only. No numbers or special characters allowed.'
   NotificationsTopic:
     Type: String
-    Default: "topic"
+    Default: "Notifications"
     Description: (Required) Provide a topic for the IoT Notifications channel.
   ESPspecificTopic:
     Type: String
@@ -49,6 +49,7 @@ Parameters:
 
 Resources:  
 ########GET########
+
   GetEnvironmentLogs:
     Type: AWS::Serverless::Function 
     Properties:
@@ -64,122 +65,7 @@ Resources:
             Path: /view/logs/env
             Method: get
 
-            SetVitalParamRangesByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setVitalParamRangesByDog
-      Runtime: nodejs14.x
-      Events:
-        VitalParamRangesByDogSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/vital/dog
-            Method: post
-
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setFoodScheduleByDog
-      Runtime: nodejs14.x
-      Events:
-        FoodScheduleByDogSetting:
-          Type: Api 
-          Properties:
-            Path: /set/schedule/dog
-            Method: post
-  GetDogs:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.getDogs
-      Runtime: nodejs14.x
-      Events:
-        Dogs:
-          Type: Api 
-          Properties:
-            Path: /view/dogs
-            Method: get
   GetTotalCosumption:
-  GetLogsByDog:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.getLogsByDog
-      Runtime: nodejs14.x
-      Events:
-        LogsByDog:
-          Type: Api 
-          Properties:
-            Path: /view/logs/dog
-            Method: get
-########POST########
-  SetVitalParamRangesBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setVitalParamRangesBySize
-      Runtime: nodejs14.x
-      Events:
-        VitalParamRangesBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/vital/size
-            Method: post
-  SetConsRangesBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setConsRangesBySize
-      Runtime: nodejs14.x
-      Events:
-        ConsRangesBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/ranges/cons/size
-            Method: post
-  SetConsRangesByDog:
-      Type: AWS::Serverless::Function 
-      Properties:
-        CodeUri: lambda/
-        Policies:
-        - AmazonDynamoDBFullAccess
-        Handler: app.setConsRangesByDog
-        Runtime: nodejs14.x
-        Events:
-          ConsRangesByDogSetting:
-            Type: Api 
-            Properties:
-              Path: /set/ranges/cons/dog
-              Method: post
-  SetFoodScheduleBySize:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
-      Handler: app.setFoodScheduleBySize
-      Runtime: nodejs14.x
-      Events:
-        FoodScheduleBySizeSetting:
-          Type: Api 
-          Properties:
-            Path: /set/schedule/size
-            Method: post
-  SetFoodScheduleByDog:
-
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
@@ -194,6 +80,128 @@ Resources:
             Path: /view/logs/dog/total
             Method: get
 
+  GetDogs:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getDogs
+      Runtime: nodejs14.x
+      Events:
+        Dogs:
+          Type: Api 
+          Properties:
+            Path: /view/dogs
+            Method: get
+
+  GetLogsByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getLogsByDog
+      Runtime: nodejs14.x
+      Events:
+        LogsByDog:
+          Type: Api 
+          Properties:
+            Path: /view/logs/dog
+            Method: get
+
+########POST########
+
+  SetFoodScheduleByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleByDog
+      Runtime: nodejs14.x
+      Events:
+        FoodScheduleByDogSetting:
+          Type: Api 
+          Properties:
+            Path: /set/schedule/dog
+            Method: post
+
+  SetVitalParamRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        VitalParamRangesBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/size
+            Method: post
+
+  SetConsRangesBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setConsRangesBySize
+      Runtime: nodejs14.x
+      Events:
+        ConsRangesBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/cons/size
+            Method: post
+
+  SetConsRangesByDog:
+      Type: AWS::Serverless::Function 
+      Properties:
+        CodeUri: lambda/
+        Policies:
+        - AmazonDynamoDBFullAccess
+        Handler: app.setConsRangesByDog
+        Runtime: nodejs14.x
+        Events:
+          ConsRangesByDogSetting:
+            Type: Api 
+            Properties:
+              Path: /set/ranges/cons/dog
+              Method: post
+
+  SetFoodScheduleBySize:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setFoodScheduleBySize
+      Runtime: nodejs14.x
+      Events:
+        FoodScheduleBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /set/schedule/size
+            Method: post
+
+  SetVitalParamRangesByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.setVitalParamRangesByDog
+      Runtime: nodejs14.x
+      Events:
+        VitalParamRangesByDogSetting:
+          Type: Api 
+          Properties:
+            Path: /set/ranges/vital/dog
+            Method: post
+
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------CRONO-TRIGGERED---------------------------------------------------------
@@ -204,33 +212,39 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
       Handler: app.waterConsumptionAlarm
       Runtime: nodejs14.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - Statement:
+        - Effect: Allow
+          Action:
+          - 'execute-api:ManageConnections'
+          Resource:
+          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
       Events:
         CWScheduleWaterConsumption:
           Type: Schedule
-          Properties:
-            Schedule: 'rate(5 minutes)'
+          Properties: #'rate(2 minutes)'
+            Schedule: 'cron(0 0 * * ? *)'
             Name: WaterConsumptionAlarmSchedule
-            Description: The function check at midnigth the day water consumption for anomalies
+            Description: The function check at midnigth the day water consumption in serch anomalies
             Enabled: false
 
   FoodConsumptionAlarm:
       Type: AWS::Serverless::Function 
       Properties:
         CodeUri: lambda/
-        Policies:
-        - AmazonDynamoDBFullAccess
         Handler: app.foodConsumptionAlarm
         Runtime: nodejs14.x
         Environment:
           Variables:
             TABLE_NAME: !Ref TableName
         Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
+        - AmazonDynamoDBFullAccess
         - Statement:
           - Effect: Allow
             Action:
@@ -240,18 +254,17 @@ Resources:
         Events:
           CWScheduleFoodConsumption:
             Type: Schedule
-            Properties:
-              Schedule: 'rate(2 minutes)'
+            Properties: #'rate(2 minutes)'
+              Schedule: 'cron(0 0 * * ? *)'
               Name: FoodConsumptionAlarmSchedule
-              Description: The function check at midnigth the day food consumption for anomalies
-              Enabled: true
+              Description: The function check at midnigth the day food consumption in serch anomalies
+              Enabled: false
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------MQTT-TRIGGERED----------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
-
 
   SaveDetection:
     Type: AWS::Serverless::Function
@@ -268,7 +281,6 @@ Resources:
           Properties:
             AwsIotSqlVersion: 2016-03-23
             Sql: !Sub "SELECT * FROM '${ESPspecificTopic}'"
-
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
@@ -463,9 +475,6 @@ Resources:
           Properties:
             AwsIotSqlVersion: 2016-03-23
             Sql: !Sub "SELECT * FROM '${NotificationsTopic}'"
-
-
-
 
   SendNotificationPermission:
     Type: AWS::Lambda::Permission
