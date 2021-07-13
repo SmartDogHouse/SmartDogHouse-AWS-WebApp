@@ -109,7 +109,7 @@ Resources:
           Properties:
             Path: /view/logs/dog
             Method: get
-
+            
 ########POST########
 
   SetFoodScheduleByDog:

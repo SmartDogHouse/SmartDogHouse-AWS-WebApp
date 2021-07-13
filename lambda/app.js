@@ -1,4 +1,3 @@
-
 const tableName = "dogs_logs"
 // const axios = require('axios')
 // const url = 'http://checkip.amazonaws.com/';
@@ -49,6 +48,7 @@ const tableName = "dogs_logs"
   
     return response
   };
+
 
   
   exports.getDogs = async (event, context) => {
@@ -361,41 +361,6 @@ exports.getLogsByDog = async (event, context) => {
     return response
   };
 
-  /*To schedule*/
-  exports.waterConsumptionAlarm = async (event, context) => {
-
-    const region = 'eu-west-2';
-    let queryManager = new QueryManager()
-    let dbManager = new DynamoDBManager(region)
-  
-    var today = new Date()
-    var tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const type = 'wcons'
-    today = today.toISOString().slice(0, 19) 
-    tomorrow = tomorrow.toISOString().slice(0, 19) 
-    console.log(tomorrow)
-    try {
-        let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsWithWaterRange());
-        for (const el of dogs) {
-
-            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogWaterRanges(el.PK));
-            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type,el.PK,today,tomorrow));
-
-            if (typeof values !== 'undefined' && values.length > 0) {
-                let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
-                if(sum < ranges[0].daily_water_lower_bound ||  sum > ranges[0].daily_water_upper_bound ){
-                    //TODO SEND WEBSITE NOTIFY
-                }
-            }
-
-        }
-        return `\t Success \t`
-    } catch (err) {
-        return `\t Error ${err} \t`
-    }
-  };
-
   exports.getTotalCosumption = async (event, context) => {
 
     const region = 'eu-west-2';
@@ -442,49 +407,8 @@ exports.getLogsByDog = async (event, context) => {
 
 
   exports.foodConsumptionAlarm = async (event, context) => {
-    const AWS = require('aws-sdk');
-
-    const ddb = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10', region: process.env.AWS_REGION });
-    
-    const { TABLE_NAME } = process.env;
-  
-  
-    let connectionData;
-    
-    try {
-      connectionData = await ddb.scan({ TableName: TABLE_NAME, ProjectionExpression: 'connectionId' }).promise();
-    } catch (e) {
-      return { statusCode: 500, body: e.stack };
-    }
-    
-    const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-      apiVersion: '2018-11-29',
-      endpoint: "c07eionjgd.execute-api.eu-west-2.amazonaws.com/Prod"
-    });
-    
-    const postData = JSON.stringify({"data":"aassasasaasasassa"});
-    
-    const postCalls = connectionData.Items.map(async ({ connectionId }) => {
-      try {
-        await apigwManagementApi.postToConnection({ ConnectionId: connectionId, Data: postData }).promise();
-      } catch (e) {
-        if (e.statusCode === 410) {
-          console.log(`Found stale connection, deleting ${connectionId}`);
-          await ddb.delete({ TableName: TABLE_NAME, Key: { connectionId } }).promise();
-        } else {
-          throw e;
-        }
-      }
-    });
-    
-    try {
-      await Promise.all(postCalls);
-    } catch (e) {
-      return { statusCode: 500, body: "ERR"+e.stack };
-    }
-  
-    return { statusCode: 200, body: 'Data sent.' };
-  /**  const region = 'eu-west-2';
+   
+    const region = 'eu-west-2';
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
   
@@ -492,26 +416,137 @@ exports.getLogsByDog = async (event, context) => {
     var tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     const type = 'fcons'
-    //today = today.toISOString().slice(0, 19) 
-    //tomorrow = tomorrow.toISOString().slice(0, 19) 
-    today = "2018-07-13T10:00:00"
-    tomorrow = "2029-07-13T10:23:59"
+    today = today.toISOString().slice(0, 19) 
+    tomorrow = tomorrow.toISOString().slice(0, 19) 
+
     try {
         let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsWithFoodRange());
-        console.log("Dogs"+dogs)
-        for (const el of dogs) {
+        for (const dog of dogs) {
 
-            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogFoodRanges(el.PK));
-            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type, el.PK,today,tomorrow));
-            console.log("Ranges"+ranges)
-            console.log("Values"+values)
+            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogFoodRanges(dog.PK));
+            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type, dog.PK,today,tomorrow));
+
 
             if (typeof values !== 'undefined' && values.length > 0) {
                 let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
                 if(sum < ranges[0].daily_food_lower_bound ||  sum > ranges[0].daily_food_upper_bound ){
-                    //TODO SEND WEBSITE NOTIFY
-                    console.log("ALLARMEEEEE")
 
+                    const AWS = require('aws-sdk');
+
+                    const ddb = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10', region: process.env.AWS_REGION });
+                    
+                    const { TABLE_NAME } = process.env;
+                  
+                  
+                    let connectionData;
+                    
+                    try {
+                      connectionData = await ddb.scan({ TableName: TABLE_NAME, ProjectionExpression: 'connectionId' }).promise();
+                    } catch (e) {
+                      return { statusCode: 500, body: e.stack };
+                    }
+                    
+                    const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+                      apiVersion: '2018-11-29',
+                      endpoint: "c07eionjgd.execute-api.eu-west-2.amazonaws.com/Prod"
+                    });
+                    
+                    const postData = JSON.stringify({"Notify": `Allarme cane: ${dog.PK} Consumo di cibo anomalo, cibo consumato oggi: ${sum}`});
+                    
+                    const postCalls = connectionData.Items.map(async ({ connectionId }) => {
+                      try {
+                        await apigwManagementApi.postToConnection({ ConnectionId: connectionId, Data: postData }).promise();
+                      } catch (e) {
+                        if (e.statusCode === 410) {
+                          console.log(`Found stale connection, deleting ${connectionId}`);
+                          await ddb.delete({ TableName: TABLE_NAME, Key: { connectionId } }).promise();
+                        } else {
+                          throw e;
+                        }
+                      }
+                    });
+                    
+                    try {
+                      await Promise.all(postCalls);
+                    } catch (e) {
+                      return `\t Error \t${e.stack}`
+                    }
+                    return `\t Success \t`
+                }
+            }
+        }
+        return `\t Success \t`
+    } catch (err) {
+        return `\t Error ${err} \t`
+    }
+  };
+
+
+
+  exports.waterConsumptionAlarm = async (event, context) => {
+
+    const region = 'eu-west-2';
+    let queryManager = new QueryManager()
+    let dbManager = new DynamoDBManager(region)
+  
+    var today = new Date()
+    var tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const type = 'wcons'
+    today = today.toISOString().slice(0, 19) 
+    tomorrow = tomorrow.toISOString().slice(0, 19) 
+    console.log(tomorrow)
+    try {
+        let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsWithWaterRange());
+        for (const el of dogs) {
+
+            let ranges = await dbManager.executeExecuteStatement(queryManager.getDogWaterRanges(el.PK));
+            let values = await dbManager.executeExecuteStatement(queryManager.getLogsByDog(type,el.PK,today,tomorrow));
+
+            if (typeof values !== 'undefined' && values.length > 0) {
+                let sum = values.map(value => value.val ).reduce((acc,newEl) => acc+newEl)
+                if(sum < ranges[0].daily_water_lower_bound ||  sum > ranges[0].daily_water_upper_bound ){
+
+                    const AWS = require('aws-sdk');
+
+                    const ddb = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10', region: process.env.AWS_REGION });
+                    
+                    const { TABLE_NAME } = process.env;
+                  
+                    let connectionData;
+                    
+                    try {
+                      connectionData = await ddb.scan({ TableName: TABLE_NAME, ProjectionExpression: 'connectionId' }).promise();
+                    } catch (e) {
+                      return { statusCode: 500, body: e.stack };
+                    }
+                    
+                    const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+                      apiVersion: '2018-11-29',
+                      endpoint: "c07eionjgd.execute-api.eu-west-2.amazonaws.com/Prod"
+                    });
+                    
+                    const postData = JSON.stringify({"Notify": `Allarme cane: ${dog.PK} Consumo di Acqua anomalo, cibo consumato oggi: ${sum}`});
+                    
+                    const postCalls = connectionData.Items.map(async ({ connectionId }) => {
+                      try {
+                        await apigwManagementApi.postToConnection({ ConnectionId: connectionId, Data: postData }).promise();
+                      } catch (e) {
+                        if (e.statusCode === 410) {
+                          console.log(`Found stale connection, deleting ${connectionId}`);
+                          await ddb.delete({ TableName: TABLE_NAME, Key: { connectionId } }).promise();
+                        } else {
+                          throw e;
+                        }
+                      }
+                    });
+                    
+                    try {
+                      await Promise.all(postCalls);
+                    } catch (e) {
+                      return `\t Error \t${e.stack}`
+                    }
+                    return `\t Success \t`
                 }
             }
 
@@ -519,7 +554,7 @@ exports.getLogsByDog = async (event, context) => {
         return `\t Success \t`
     } catch (err) {
         return `\t Error ${err} \t`
-    }**/
+    }
   };
 
   exports.saveDetection = async (event, context) => {
