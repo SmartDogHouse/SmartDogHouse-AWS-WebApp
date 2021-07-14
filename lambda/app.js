@@ -48,6 +48,46 @@ const tableName = "dogs_logs"
   
     return response
   };
+  
+/*{
+  role: 'vet'
+} */
+exports.getUsersByRole = async (event, context) => {
+
+  const region = 'eu-west-2';
+  let queryManager = new QueryManager()
+  let dbManager = new DynamoDBManager(region)
+  let result
+  let statusCode = 200
+
+  if(event.queryStringParameters.role){
+      result = await dbManager.executeExecuteStatement2(queryManager.getUsersByRole(event.queryStringParameters.role));
+      console.info('ExecuteStatement API call has been executed.')
+  }else{
+      statusCode = 500;
+  }
+
+  switch (result) {
+      case null:
+      case "":
+          statusCode = 500;
+          break;
+  }
+
+  const response = {
+      statusCode: statusCode,
+      "headers":{
+          "Access-Control-Allow-Origin":"*",
+          "Access-Control-Allow-Methods":"*"
+       },
+      body: JSON.stringify(result)
+  };
+
+  return response
+};
+
+
+
 
 /*{
   username: 'ciccio01'
@@ -787,6 +827,15 @@ class QueryManager {
           FROM dogs_logs
           WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
         } 
+    }
+    
+    getUsersByRole(role){
+      return {
+        "Statement" : 
+        `SELECT *
+        FROM dogs_logs
+        WHERE contains(PK,'USER#') AND contains(SK,'#PROFILE#') AND contains(roles, '${role}')`
+      }       
     }
     getRolesByUser(username){
       return {

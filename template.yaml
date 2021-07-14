@@ -139,6 +139,22 @@ Resources:
           Properties:
             Path: /view/user/roles
             Method: get
+
+  GetUsersByRole:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getUsersByRole
+      Runtime: nodejs14.x
+      Events:
+        Users:
+          Type: Api 
+          Properties:
+            Path: /view/roles/user
+            Method: get
+
 ########POST########
 
   SetFoodScheduleByDog:
