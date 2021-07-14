@@ -80,6 +80,45 @@ const tableName = "dogs_logs"
   };
 
 /*{
+  "chip_id": 'c02'
+} */
+exports.getLastVitalParamsValByDog = async (event, context) => {
+
+  const region = 'eu-west-2';
+  let queryManager = new QueryManager()
+  let dbManager = new DynamoDBManager(region)
+  let result
+  let statusCode = 200
+
+  if(event.queryStringParameters.chip_id){
+      result = await dbManager.executeExecuteStatement(queryManager.getLastTempHbByDog(event.queryStringParameters.chip_id));
+      console.info('ExecuteStatement API call has been executed.')
+  }else{
+      statusCode = 500;
+  }
+
+  switch (result) {
+      case null:
+      case "":
+          statusCode = 500;
+          break;
+  }
+
+  const response = {
+      statusCode: statusCode,
+      "headers":{
+          "Access-Control-Allow-Origin":"*",
+          "Access-Control-Allow-Methods":"*"
+       },
+      body: JSON.stringify(result)
+  };
+
+  return response
+};
+
+
+
+/*{
     "lower_bound": 36
     "upper_bound": 41
     "dog_size": 3
@@ -706,6 +745,14 @@ class QueryManager {
             WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
           } 
       }
+    getLastTempHbByDog(chip_id) {
+      return {
+          "Statement" : 
+          `SELECT last_hb, last_temp
+          FROM dogs_logs
+          WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}`
+        } 
+    }
     getDogsBySize(size) {
         return {
             "Statement" : 

@@ -109,6 +109,21 @@ Resources:
           Properties:
             Path: /view/logs/dog
             Method: get
+
+  GetLastVitalParamsValByDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.getLastVitalParamsValByDog
+      Runtime: nodejs14.x
+      Events:
+        LastParams:
+          Type: Api 
+          Properties:
+            Path: /view/logs/dog/last
+            Method: get
             
 ########POST########
 
