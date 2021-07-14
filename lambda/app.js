@@ -371,20 +371,20 @@ exports.getLogsByDog = async (event, context) => {
 
     if(event.queryStringParameters.lowerT && event.queryStringParameters.upperT && event.queryStringParameters.dog){
         var data = event.queryStringParameters
-        var waterConsumptio = 0
-        var foodConsumptio = 0
+        var waterConsumption = 0
+        var foodConsumption = 0
         try {
-             waterConsumptio = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("wcons",data.dog,data.lowerT,data.upperT))
-             foodConsumptio = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("fcons",data.dog,data.lowerT,data.upperT))
-             if(Object.values(waterConsumptio).length > 0){
-                waterConsumptio = Object.values(waterConsumptio).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
+             waterConsumption = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("wcons",data.dog,data.lowerT,data.upperT))
+             foodConsumption = await dbManager.executeExecuteStatement(queryManager.getLogsByDog("fcons",data.dog,data.lowerT,data.upperT))
+             if(Object.values(waterConsumption).length > 0){
+                waterConsumption = Object.values(waterConsumption).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
              }else{
-                waterConsumptio = 0
+                waterConsumption = 0
              }
-             if(Object.values(foodConsumptio).length > 0){
-                foodConsumptio = Object.values(foodConsumptio).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
+             if(Object.values(foodConsumption).length > 0){
+                foodConsumption = Object.values(foodConsumption).map(el => el.val ).reduce((acc,nextEL) => nextEL+acc)
              }else{
-                foodConsumptio = 0
+                foodConsumption = 0
              }
 
             } catch (err) {
@@ -400,7 +400,7 @@ exports.getLogsByDog = async (event, context) => {
             "Access-Control-Allow-Origin":"*",
             "Access-Control-Allow-Methods":"*"
          },
-        body: JSON.stringify({"waterTotal": waterConsumptio, "foodTotal": foodConsumptio})
+        body: JSON.stringify({"waterTotal": waterConsumption, "foodTotal": foodConsumption})
     };
     return response
   };

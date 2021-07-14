@@ -74,7 +74,7 @@ Resources:
       Handler: app.getTotalCosumption
       Runtime: nodejs14.x
       Events:
-        HelloWorld:
+        TotalConsumption:
           Type: Api 
           Properties:
             Path: /view/logs/dog/total
