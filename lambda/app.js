@@ -80,7 +80,7 @@ const tableName = "dogs_logs"
   };
 
 /*{
-  "chip_id": 'c02'
+  "dog": 'c02'
 } */
 exports.getLastVitalParamsValByDog = async (event, context) => {
 
@@ -90,8 +90,8 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   let result
   let statusCode = 200
 
-  if(event.queryStringParameters.chip_id){
-      result = await dbManager.executeExecuteStatement(queryManager.getLastTempHbByDog(event.queryStringParameters.chip_id));
+  if(event.queryStringParameters.dog){
+      result = await dbManager.executeExecuteStatement(queryManager.getLastTempHbByDog(event.queryStringParameters.dog));
       console.info('ExecuteStatement API call has been executed.')
   }else{
       statusCode = 500;
@@ -750,7 +750,7 @@ class QueryManager {
           "Statement" : 
           `SELECT last_hb, last_temp
           FROM dogs_logs
-          WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}`
+          WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
         } 
     }
     getDogsBySize(size) {
