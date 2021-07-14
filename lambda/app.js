@@ -17,6 +17,31 @@ const tableName = "dogs_logs"
  * 
  */
 
+ const createResponse = (statusCode, body) => {
+    
+  // to restrict the origin for CORS purposes, replace the wildcard
+  // origin with a specific domain name
+  console.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+  console.info("STAT CODE: " + JSON.stringify(statusCode))
+  console.info("BODY: " + JSON.stringify(body))
+  return {
+      statusCode: statusCode,
+      body: body,
+      headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+      }
+  }
+};
+
+exports.create = async (event) => {
+  console.info("BUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
+  console.info("EVENT: " + JSON.stringify(event))  
+  return createResponse(200, `TODO item created with todo_id = 425\n`);
+};
+
+
+
 /*{
     "time_low": '2021-08-09T11:15:36'
     "time_up": '2021-09-08T16:16:08'
@@ -85,9 +110,6 @@ exports.getUsersByRole = async (event, context) => {
 
   return response
 };
-
-
-
 
 /*{
   username: 'ciccio01'
@@ -191,8 +213,6 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   return response
 };
 
-
-
 /*{
     "lower_bound": 36
     "upper_bound": 41
@@ -228,8 +248,6 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   
     return response
   };
-
-
 
   /*{
     "chip_id": 'c02'
@@ -404,6 +422,11 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   const time = "13:00"
   const grams = 475
   const size = 3
+  console.info("CACACACACACCACACCAC")
+  console.info("EVENT" + JSON.stringify(event))
+  console.info("EVENT.DATA:  " + event.data)
+  
+  
   let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
   //let result = await dbManager.executeExecuteStatement(queryManager.test());
 
@@ -422,13 +445,16 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
       }
       
     await dbManager.putItemInDB(params)
-
   }
   console.info('ExecuteStatement API call has been executed.')
 
   const response = {
       statusCode: statusCode,
-      body: "ok"
+      body: "ok",
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-type': 'application/json',
+     },
   };
 
   return response

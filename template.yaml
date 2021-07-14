@@ -13,11 +13,13 @@ Globals:
   Api:
     EndpointConfiguration: REGIONAL
     Cors:
-      AllowMethods: "'POST, GET'"
+      AllowMethods: "'*'"
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
       MaxAge: "'600'"
 #      AllowCredentials: true 
+    Auth:
+      AddDefaultAuthorizerToCorsPreflight: False
 
 Parameters:
   TableName:
@@ -156,6 +158,19 @@ Resources:
             Method: get
 
 ########POST########
+  CreateFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies: AmazonDynamoDBFullAccess
+      Handler: app.create
+      Runtime: nodejs14.x
+      Events:
+        ConsRangesBySizeSetting:
+          Type: Api 
+          Properties:
+            Path: /todo/new
+            Method: post
 
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
@@ -191,8 +206,7 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: lambda/
-      Policies:
-      - AmazonDynamoDBFullAccess
+      Policies: AmazonDynamoDBFullAccess
       Handler: app.setConsRangesBySize
       Runtime: nodejs14.x
       Events:
@@ -230,7 +244,7 @@ Resources:
           Type: Api 
           Properties:
             Path: /set/schedule/size
-            Method: post
+            Method: post, options
 
   SetVitalParamRangesByDog:
     Type: AWS::Serverless::Function 
