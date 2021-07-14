@@ -21,7 +21,7 @@ const tableName = "dogs_logs"
     "time_low": '2021-08-09T11:15:36'
     "time_up": '2021-09-08T16:16:08'
     "type": 'hum' 
-    allowed types: hum, temp
+    (allowed types: hum, temp)
 }*/
  exports.getEnvironmentLogs = async (event, context) => {
 
@@ -401,19 +401,18 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   let queryManager = new QueryManager()
   let dbManager = new DynamoDBManager(region)
   let statusCode = 200
-  const time = "13:00"
-  const grams = 475
-  const size = 3
-  let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
+  var parsed = JSON.parse(event.body)
+  let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(parsed.size));
   //let result = await dbManager.executeExecuteStatement(queryManager.test());
+
 
   for (const el of dogs) {
     const data = {
-        "PK" : `SCHED#${time}`,
+        "PK" : `SCHED#${parsed.time}`,
         "SK" : el.PK,
         "chip_id": el.chip_id,
-        "grams": grams,
-        "schedule_time": time                   
+        "grams": parsed.grams,
+        "schedule_time": parsed.time                   
     }
     const marshalledData = AWS.DynamoDB.Converter.marshall(data)
     const params = {
