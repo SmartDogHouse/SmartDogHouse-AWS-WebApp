@@ -86,6 +86,10 @@ exports.getUsersByRole = async (event, context) => {
   return response
 };
 
+/*{
+  "topic" :"AWS",
+  "payload" : {"A":"b","B":"b"}
+}*/
 exports.sendMsgToMQTT = async (event, context) => {
   const region = 'eu-west-2';
   const accountSpecificID = 'a2u7mhrmzu8qr6-ats';
@@ -102,10 +106,8 @@ exports.sendMsgToMQTT = async (event, context) => {
         var params = {
           topic: body.topic,
           payload: JSON.stringify(body.payload),
-          qos: 0
+          qos: 1
          };
-
-
 
         iotdata.publish(params, function(err, data) {
           if (err) {

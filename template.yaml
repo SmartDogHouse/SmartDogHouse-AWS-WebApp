@@ -279,7 +279,7 @@ Resources:
             Schedule: 'cron(0 0 * * ? *)'
             Name: WaterConsumptionAlarmSchedule
             Description: The function check at midnigth the day water consumption in serch anomalies
-            Enabled: false
+            Enabled: true
 
   FoodConsumptionAlarm:
       Type: AWS::Serverless::Function 
@@ -304,7 +304,7 @@ Resources:
               Schedule: 'cron(0 0 * * ? *)'
               Name: FoodConsumptionAlarmSchedule
               Description: The function check at midnigth the day food consumption in serch anomalies
-              Enabled: false
+              Enabled: true
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
