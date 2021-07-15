@@ -87,8 +87,46 @@ exports.getUsersByRole = async (event, context) => {
   return response
 };
 
+exports.sendMsgToMQTT = async (event, context) => {
+  const region = 'eu-west-2';
+  const accountSpecificID = 'a2u7mhrmzu8qr6-ats';
+  let statusCode = 500
+  var AWS = require('aws-sdk');
+
+  console.log("Event => " + JSON.stringify(event));
+      var body = JSON.parse(event.body)
+      if(typeof body !== undefined && typeof event.body.topic !== undefined && typeof event.body.payload !== undefined ){
+        var iotdata = new AWS.IotData({ endpoint: `${accountSpecificID}.iot.${region}.amazonaws.com` });
+        statusCode = 200
+        console.log("Event => " + body.topic);
+        console.log("Event => " + body.payload);
+        var params = {
+          topic: body.topic,
+          payload: JSON.stringify(body.payload),
+          qos: 0
+         };
 
 
+
+        iotdata.publish(params, function(err, data) {
+          if (err) {
+              console.log("ERROR => " + JSON.stringify(err));
+              statusCode = 500
+          }
+          else {
+              console.log("Success");
+          }
+        }).promise();
+      }
+  const response = {
+      statusCode: statusCode,
+      "headers":{
+          "Access-Control-Allow-Origin":"*",
+          "Access-Control-Allow-Methods":"*"
+       },
+  };
+  return response
+}
 
 /*{
   username: 'ciccio01'

@@ -8,15 +8,16 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Runtime: nodejs14.x
+    Timeout: 4
     MemorySize : 256
   Api:
     EndpointConfiguration: REGIONAL
     Cors:
-      AllowMethods: "'POST, GET'"
+      AllowMethods: "'*'"
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
-      MaxAge: "'600'"
+#      MaxAge: "'600'"
 #      AllowCredentials: true 
 
 Parameters:
@@ -57,7 +58,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getEnvironmentLogs
-      Runtime: nodejs14.x
       Events:
         EnvironmentLogs:
           Type: HttpApi 
@@ -72,7 +72,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getTotalCosumption
-      Runtime: nodejs14.x
       Events:
         TotalConsumption:
           Type: Api 
@@ -87,7 +86,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getDogs
-      Runtime: nodejs14.x
       Events:
         Dogs:
           Type: Api 
@@ -102,7 +100,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getLogsByDog
-      Runtime: nodejs14.x
       Events:
         LogsByDog:
           Type: Api 
@@ -117,7 +114,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getLastVitalParamsValByDog
-      Runtime: nodejs14.x
       Events:
         LastParams:
           Type: Api 
@@ -132,7 +128,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getRolesByUser
-      Runtime: nodejs14.x
       Events:
         Roles:
           Type: Api 
@@ -147,7 +142,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.getUsersByRole
-      Runtime: nodejs14.x
       Events:
         Users:
           Type: Api 
@@ -164,7 +158,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.setFoodScheduleByDog
-      Runtime: nodejs14.x
       Events:
         FoodScheduleByDogSetting:
           Type: Api 
@@ -179,7 +172,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.setVitalParamRangesBySize
-      Runtime: nodejs14.x
       Events:
         VitalParamRangesBySizeSetting:
           Type: Api 
@@ -194,7 +186,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.setConsRangesBySize
-      Runtime: nodejs14.x
       Events:
         ConsRangesBySizeSetting:
           Type: Api 
@@ -209,7 +200,6 @@ Resources:
         Policies:
         - AmazonDynamoDBFullAccess
         Handler: app.setConsRangesByDog
-        Runtime: nodejs14.x
         Events:
           ConsRangesByDogSetting:
             Type: Api 
@@ -224,7 +214,6 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.setFoodScheduleBySize
-      Runtime: nodejs14.x
       Events:
         FoodScheduleBySizeSetting:
           Type: Api 
@@ -239,12 +228,26 @@ Resources:
       Policies:
       - AmazonDynamoDBFullAccess
       Handler: app.setVitalParamRangesByDog
-      Runtime: nodejs14.x
       Events:
         VitalParamRangesByDogSetting:
           Type: Api 
           Properties:
             Path: /set/ranges/vital/dog
+            Method: post
+
+  SendMsgToMQTT:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AWSIoTFullAccess
+      Handler: app.sendMsgToMQTT
+      Events:
+        VitalParamRangesByDogSetting1:
+          Type: Api 
+          Properties:
+            Path: /send/mqtt/
             Method: post
 
 ##-----------------------------------------------------------------------------------------------------------------------
@@ -258,7 +261,6 @@ Resources:
     Properties:
       CodeUri: lambda/
       Handler: app.waterConsumptionAlarm
-      Runtime: nodejs14.x
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
@@ -284,7 +286,6 @@ Resources:
       Properties:
         CodeUri: lambda/
         Handler: app.foodConsumptionAlarm
-        Runtime: nodejs14.x
         Environment:
           Variables:
             TABLE_NAME: !Ref TableName
@@ -316,16 +317,39 @@ Resources:
     Properties:
       CodeUri: lambda/
       Handler: app.saveDetection
-      Runtime: nodejs14.x
       Environment:
       Policies:
       - AmazonDynamoDBFullAccess
       Events:
-        IoT:
+        IoTSpecific:
           Type: IoTRule
           Properties:
             AwsIotSqlVersion: 2016-03-23
-            Sql: !Sub "SELECT * FROM '${ESPspecificTopic}'"
+            Sql: !Sub "SELECT * FROM '${ESPspecificTopic}/#'"
+
+  SendNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/websock/
+      Handler: SendNotifications.handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref TableName
+      - Statement:
+        - Effect: Allow
+          Action:
+          - 'execute-api:ManageConnections'
+          Resource:
+          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
+      Events:
+        IoTNotification:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: 2016-03-23
+            Sql: !Sub "SELECT * FROM '${NotificationsTopic}'"
 
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
@@ -434,7 +458,6 @@ Resources:
     Properties:
       CodeUri: lambda/websock/
       Handler: Connect.handler
-      Runtime: nodejs14.x
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
@@ -454,7 +477,6 @@ Resources:
     Properties:
       CodeUri: lambda/websock/
       Handler: Disconnect.handler
-      Runtime: nodejs14.x
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
@@ -474,12 +496,10 @@ Resources:
     Properties:
       CodeUri: lambda/websock/
       Handler: SendMsg.handler
-      Runtime: nodejs14.x
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
       Policies:
-      - AmazonDynamoDBFullAccess
       - DynamoDBCrudPolicy:
           TableName: !Ref TableName
       - Statement:
@@ -496,30 +516,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref SendMessageFunction
       Principal: apigateway.amazonaws.com
-  SendNotificationFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambda/websock/
-      Handler: SendNotifications.handler
-      Runtime: nodejs14.x
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TableName
-      Policies:
-      - DynamoDBCrudPolicy:
-          TableName: !Ref TableName
-      - Statement:
-        - Effect: Allow
-          Action:
-          - 'execute-api:ManageConnections'
-          Resource:
-          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleNotificationWebSocket}/*'
-      Events:
-        IoT:
-          Type: IoTRule
-          Properties:
-            AwsIotSqlVersion: 2016-03-23
-            Sql: !Sub "SELECT * FROM '${NotificationsTopic}'"
+
 
   SendNotificationPermission:
     Type: AWS::Lambda::Permission
