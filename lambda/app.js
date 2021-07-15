@@ -240,7 +240,6 @@ exports.updateDogStatus= async (event, context) => {
   const AWS = require('aws-sdk')
   const region = 'eu-west-2';
   var parsed = JSON.parse(event.body)
-
   let queryManager = new QueryManager()
   let dbManager = new DynamoDBManager(region)
 
@@ -424,6 +423,7 @@ exports.removeDog = async (event, context) => {
   let queryManager = new QueryManager()
   let statusCode = 200
   var parsed = JSON.parse(event.body)
+
   await dbManager.executeExecuteStatement(queryManager.deleteDog(parsed.chip_id));
     
 
@@ -431,7 +431,11 @@ exports.removeDog = async (event, context) => {
 
   const response = {
       statusCode: statusCode,
-      body: "ok"
+      body: "ok",
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-type': '*',
+     },
   };
 
   return response
@@ -815,6 +819,10 @@ class DynamoDBManager {
     await this.dynamoDbClient.putItem(obj).promise()
   }
 
+  async deleteItemFromDB(obj){
+    await this.dynamoDbClient.deleteItem(obj).promise()
+  }
+
   async executeExecuteStatement(executeStatementInput) {
       // Call DynamoDB's executeStatement API
       try {
@@ -926,7 +934,7 @@ class QueryManager {
       return {
         "Statement" : 
         `UPDATE dogs_logs
-        SET "status"=${status} 
+        SET "status"='${status}' 
         WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
       }       
     }
@@ -935,7 +943,7 @@ class QueryManager {
       return {
         "Statement" : 
         `DELETE FROM dogs_logs
-        WHERE contains(PK,${chip_id}) OR contains(SK,${chip_id})`
+        WHERE PK = 'DOG#${chip_id}' AND SK = '#PROFILE#${chip_id}'`
       }   
     }
     changeCage(chip_id, new_cage){
@@ -947,17 +955,16 @@ class QueryManager {
       }           
     }
     insertDog(chip_id, name, size, status, cage){
-
       return {
         "Statement" : 
         `INSERT INTO dogs_logs value {          
           'PK' : 'DOG#${chip_id}', 
           'SK' : '#PROFILE#${chip_id}',
-          'chip_id': ${chip_id},
-          'name': ${name},
-          'size': ${size},
-          'status': ${status},
-          'cage_id': ${cage}`
+          'chip_id': '${chip_id}',
+          'name': '${name}',
+          'size': '${size}',
+          'status': '${status}',
+          'cage_id': '${cage}'}`
       } 
 
     }
