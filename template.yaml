@@ -150,6 +150,33 @@ Resources:
             Method: get
 
 ########POST########
+  RemoveDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.removeDog
+      Events:
+        DogDeletion:
+          Type: Api 
+          Properties:
+            Path: /set/dog/remove
+            Method: post
+  TransferDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.transferDog
+      Events:
+        DogTransfer:
+          Type: Api 
+          Properties:
+            Path: /set/dog/transfer
+            Method: post    
+
   UpdateDogStatus:
     Type: AWS::Serverless::Function 
     Properties:

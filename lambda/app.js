@@ -397,24 +397,10 @@ exports.insertNewDog = async (event, context) => {
   
     let statusCode = 200
     let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(parsed.size));
-    //let result = await dbManager.executeExecuteStatement(queryManager.test());
     
     for (const el of dogs) {
         await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(el.chip_id, parsed.upper_bound, parsed.lower_bound, parsed.type));
- /*     const data = {
-          "PK" : el.PK,
-          "SK" : `#PROFILE#${el.chip_id}`,
-          "daily_food_lower_bound": el.chip_id,
-          "daily_food_upper_bound": grams,                
-      }
-      const marshalledData = AWS.DynamoDB.Converter.marshall(data)
-      const params = {
-          "TableName": tableName,
-          "Item": marshalledData,
-        }
-        
-      await dbManager.putItemInDB(params)*/
-  
+ 
     }
     console.info('ExecuteStatement APIs call has been executed.')
   
@@ -425,7 +411,53 @@ exports.insertNewDog = async (event, context) => {
   
     return response
   };
+/* payload {
+  "chip_id": 'c04',
+}
+ */
+exports.removeDog = async (event, context) => {
+  const AWS = require('aws-sdk')
+  const region = 'eu-west-2';
+  let dbManager = new DynamoDBManager(region)
+  let queryManager = new QueryManager()
+  let statusCode = 200
+  var parsed = JSON.parse(event.body)
+  await dbManager.executeExecuteStatement(queryManager.deleteDog(parsed.chip_id));
+    
 
+  console.info('ExecuteStatement API call has been executed.')
+
+  const response = {
+      statusCode: statusCode,
+      body: "ok"
+  };
+
+  return response
+};
+
+/*payload {
+    "chip_id": 'c01'
+    "new_cage": 40
+}*/
+exports.transferDog = async (event, context) => {
+  const AWS = require('aws-sdk')
+  const region = 'eu-west-2';
+  let dbManager = new DynamoDBManager(region)
+  let queryManager = new QueryManager()
+  let statusCode = 200
+  var parsed = JSON.parse(event.body)
+  await dbManager.executeExecuteStatement(queryManager.changeCage(parsed.chip_id, parsed.new_cage));
+    
+
+  console.info('ExecuteStatement API call has been executed.')
+
+  const response = {
+      statusCode: statusCode,
+      body: "ok"
+  };
+
+  return response
+};
 
 /*payload {
     "chip_id": 'c02'
@@ -877,6 +909,7 @@ class DynamoDBManager {
 
 class QueryManager {
     constructor() {}
+
     setVitalParamRangesByDog(chip_id, u_bound, l_bound, type) {
         return {
             "Statement" : 
@@ -895,6 +928,22 @@ class QueryManager {
         WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
       }       
     }
+
+    deleteDog(chip_id){
+      return {
+        "Statement" : 
+        `DELETE FROM dogs_logs
+        WHERE contains(PK,${chip_id}) OR contains(SK,${chip_id})`
+      }   
+    }
+    changeCage(chip_id, new_cage){
+      return {
+        "Statement" : 
+        `UPDATE dogs_logs
+        SET "cage_id"=${new_cage} 
+        WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
+      }           
+    }
     insertDog(chip_id, name, size, status, cage){
 
       return {
@@ -906,7 +955,7 @@ class QueryManager {
           'name': ${name},
           'size': ${size},
           'status': ${status},
-          'cage': ${cage}`
+          'cage_id': ${cage}`
       } 
 
     }
