@@ -150,6 +150,19 @@ Resources:
             Method: get
 
 ########POST########
+  UpdateDogStatus:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.updateDogStatus
+      Events:
+        NewDog:
+          Type: Api 
+          Properties:
+            Path: /set/dog/status
+            Method: post
   InsertNewDog:
     Type: AWS::Serverless::Function 
     Properties:

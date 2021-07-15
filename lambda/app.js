@@ -230,6 +230,35 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   return response
 };
 
+/*payload={
+  "chip_id": c02,
+  "status": "curing"
+}*/
+exports.updateDogStatus= async (event, context) => {
+  const AWS = require('aws-sdk')
+  const region = 'eu-west-2';
+  var parsed = JSON.parse(event.body)
+
+  let queryManager = new QueryManager()
+  let dbManager = new DynamoDBManager(region)
+
+  let statusCode = 200
+
+  await dbManager.executeExecuteStatement(queryManager.changeStatus(parsed.chip_id, parsed.status));
+
+  console.info('ExecuteStatement API call has been executed.')
+
+  const response = {
+      statusCode: statusCode,
+      body: "ok",
+      "headers":{
+        "Access-Control-Allow-Origin":"*",
+        "Access-Control-Allow-Methods":"*"
+     },
+  };
+
+  return response
+};
 /*'chip_id': c05,
   'name': 'Bob',
   'size': 3,
@@ -858,6 +887,14 @@ class QueryManager {
           } 
       }
 
+    changeStatus(chip_id, status){
+      return {
+        "Statement" : 
+        `UPDATE dogs_logs
+        SET "status"=${status} 
+        WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
+      }       
+    }
     insertDog(chip_id, name, size, status, cage){
 
       return {
