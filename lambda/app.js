@@ -17,13 +17,14 @@ const tableName = "dogs_logs"
  * 
  */
 
+
 /*{
     "time_low": '2021-08-09T11:15:36'
     "time_up": '2021-09-08T16:16:08'
     "type": 'hum' 
     (allowed types: hum, temp)
 }*/
- exports.getEnvironmentLogs = async (event, context) => {
+exports.getEnvironmentLogs = async (event, context) => {
 
     const region = 'eu-west-2';
     let queryManager = new QueryManager()
@@ -242,21 +243,16 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
  exports.setVitalParamRangesBySize = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
-    const size = 2
-    const lower_bound = 36
-    const upper_bound = 40
-    const type = "heartbeat" /*or "temp"*/ 
-    
-    
+    var parsed = JSON.parse(event.body)
+  
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
-    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
-    //let result = await dbManager.executeExecuteStatement(queryManager.test());
-    
+    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(parsed.size));
+   
     for (const el of dogs) {
-        await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(el.chip_id, upper_bound, lower_bound, type));
+        await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(el.chip_id, parsed.upper_bound, parsed.lower_bound, parsed.type));
  
     }
     console.info('ExecuteStatement API call has been executed.')
@@ -280,20 +276,15 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   exports.setVitalParamRangesByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
-    const chip_id = "c01"
-    const lower_bound = 38
-    const upper_bound = 42
-    const type = "heartbeat" /*or "heartbeat"*/ 
-    
+    var parsed = JSON.parse(event.body)
     
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
 
-    await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(chip_id, upper_bound, lower_bound, type));
+    await dbManager.executeExecuteStatement(queryManager.setVitalParamRangesByDog(parsed.chip_id, parsed.upper_bound, parsed.lower_bound, parsed.type));
  
-    
     console.info('ExecuteStatement API call has been executed.')
   
     const response = {
@@ -314,17 +305,13 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
  exports.setConsRangesByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
-    const chip_id = "c02"
-    const upper_bound = 88
-    const lower_bound = 54
-    const type = "water" /*or "food" */ 
-    
-    
+    var parsed = JSON.parse(event.body)
+   
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
-    await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(chip_id, upper_bound, lower_bound, type)); 
+    await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(parsed.chip_id, parsed.upper_bound, parsed.lower_bound, parsed.type)); 
     
     console.info('ExecuteStatement API call has been executed.')
   
@@ -346,21 +333,17 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
  exports.setConsRangesBySize = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
-    const size = 2
-    const upper_bound = 37
-    const lower_bound = 12
-    const type = "water" /*or "food"*/ 
-    
+    var parsed = JSON.parse(event.body)
     
     let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
   
     let statusCode = 200
-    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(size));
+    let dogs = await dbManager.executeExecuteStatement(queryManager.getDogsBySize(parsed.size));
     //let result = await dbManager.executeExecuteStatement(queryManager.test());
     
     for (const el of dogs) {
-        await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(el.chip_id, upper_bound, lower_bound, type));
+        await dbManager.executeExecuteStatement(queryManager.setConsRangesByDog(el.chip_id, parsed.upper_bound, parsed.lower_bound, parsed.type));
  /*     const data = {
           "PK" : el.PK,
           "SK" : `#PROFILE#${el.chip_id}`,
@@ -387,7 +370,7 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
   };
 
 
-/*{
+/*payload {
     "chip_id": 'c02'
     "time": '12:00'
     "grams": 320
@@ -396,20 +379,16 @@ exports.getLastVitalParamsValByDog = async (event, context) => {
  exports.setFoodScheduleByDog = async (event, context) => {
     const AWS = require('aws-sdk')
     const region = 'eu-west-2';
-    let queryManager = new QueryManager()
     let dbManager = new DynamoDBManager(region)
-  
     let statusCode = 200
-    const time = "13:00"
-    const grams = 475
-    const dog = "c02"
+    var parsed = JSON.parse(event.body)
     
       const data = {
-          "PK" : `SCHED#${time}`,
-          "SK" : `DOG#${dog}`,
-          "chip_id": dog,
-          "grams": grams,
-          "schedule_time": time                   
+          "PK" : `SCHED#${parsed.time}`,
+          "SK" : `DOG#${parsed.chip_id}`,
+          "chip_id": parsed.chip_id,
+          "grams": parsed.grams,
+          "schedule_time": parsed.time                   
       }
       const marshalledData = AWS.DynamoDB.Converter.marshall(data)
       const params = {
