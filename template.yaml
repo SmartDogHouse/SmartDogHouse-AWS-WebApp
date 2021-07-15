@@ -150,6 +150,19 @@ Resources:
             Method: get
 
 ########POST########
+  InsertNewDog:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambda/
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Handler: app.insertNewDog
+      Events:
+        NewDog:
+          Type: Api 
+          Properties:
+            Path: /set/new/dog
+            Method: post
 
   SetFoodScheduleByDog:
     Type: AWS::Serverless::Function 
