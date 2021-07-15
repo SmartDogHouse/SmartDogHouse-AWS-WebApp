@@ -791,6 +791,9 @@ exports.getLogsByDog = async (event, context) => {
         console.log(event.Time)
         console.log(event.Value)
         await dbManager.executeExecuteStatement(queryManager.saveDetection(event.Chip_id,event.Value,event.Time,event.Type));
+        if(event.type == "temp" || event.type == "hb"){
+          await dbManager.executeExecuteStatement(queryManager.updateLastVitalParams(event.Chip_id,event.Type, event.Value));
+        }
         console.log("Success")
         return `\t Success \t`
     } catch (err) {
@@ -909,6 +912,14 @@ class DynamoDBManager {
 
 class QueryManager {
     constructor() {}
+    updateLastVitalParams(chip_id, type, value) {
+      return {
+          "Statement" : 
+          `UPDATE dogs_logs
+          SET last_${type}=${value} 
+          WHERE PK='DOG#${chip_id}' AND SK='#PROFILE#${chip_id}'`
+        } 
+    }
 
     setVitalParamRangesByDog(chip_id, u_bound, l_bound, type) {
         return {
