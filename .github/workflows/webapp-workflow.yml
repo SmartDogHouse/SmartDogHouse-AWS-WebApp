@@ -1,0 +1,119 @@
+name: Workflow backEnd
+on:
+  push:
+  workflow_dispatch:
+jobs:
+
+  TestJob:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Git repo
+        uses: actions/checkout@v2
+      - name: Test Code current branch
+        shell: bash
+        run: |
+          echo "skip"
+                      
+  CoverageJob:
+        needs: [TestJob] #when finished this job
+        if: success() #only on success
+        runs-on: ubuntu-latest
+        steps:
+          - name: launch coverage
+            shell: bash
+            run: echo "skip"
+          
+  TelegramJobFailure:
+      needs: [CoverageJob] #when finished this job
+      if: failure() # if its failed
+      runs-on: ubuntu-latest
+      steps:
+      - name: Send custom Telegram message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+                ${{ github.event_name }} event,
+                on github.com/${{ github.repository }},
+                by ${{ github.actor }}:
+                <b>${{ github.event.head_commit.message }}</b>
+                ❌ <b>FAILED</b> ❌
+          format: html
+          disable_web_page_preview: true
+
+  TelegramJobSuccess:
+        needs: [CoverageJob] #when finished this job
+        if: success() #only on success
+        runs-on: ubuntu-latest
+        steps:
+        - name: Send custom Telegram message
+          uses: appleboy/telegram-action@master
+          with:
+            to: ${{ secrets.TELEGRAM_TO }}
+            token: ${{ secrets.TELEGRAM_TOKEN }}
+            message: |
+                ${{ github.event_name }} event,
+                on github.com/${{ github.repository }},
+                by ${{ github.actor }}:
+                <b>${{ github.event.head_commit.message }}</b>
+                ✅ <b>SUCCEDED</b>
+            format: html
+            disable_web_page_preview: true
+          
+  FindTagJob:
+    needs: CoverageJob
+    if:  success() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      outputTagJob: '${{ steps.relese_msg.outputs.RELESE_NAME }}' #The outuput of the job
+    steps:
+      - name: Print branch
+        shell: bash
+        run: echo ${{github.head_ref}}
+      - name: Clone Repo with Checkout
+        uses: actions/checkout@v2
+      - name: Extract relese message if present
+        shell: bash
+        id: extract_tag_msg
+        run: >
+          echo "::set-output name=TAG_MSG::$(echo
+          "${{github.event.head_commit.message}}" | grep -o -P
+          '(?<=-TAG{).*(?=})')" #Extract tag name if present
+      - name: Fetch tag
+        shell: bash
+        run: |
+          git fetch --prune --unshallow --tags #Pull all tags
+      - name: Fill tag if empty
+        id: relese_msg
+        shell: bash
+        run: |
+          if [ "${{steps.extract_tag_msg.outputs.TAG_MSG}}" != "" ] #Check if the user has specified a name for the tag
+          then #if yes use it
+              echo "::set-output name=RELESE_NAME::$(echo ${{steps.extract_tag_msg.outputs.TAG_MSG}})" 
+          else #if generate one new tag incrementing fixes number like x.y.z+1
+              val=$(git describe --tags --abbrev=0)
+              newval=$(echo ${val##*.})
+              newval=$((newval+1))
+              newval="${val%.*}.$newval"
+              echo "::set-output name=RELESE_NAME::$(echo $newval)"
+              echo $newval 
+          fi
+  DeployJob:
+    needs: FindTagJob
+    if: '${{ needs.FindTagJob.outputs.outputTagJob != '''' }}'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repo with Checkout
+        uses: actions/checkout@v2
+      - name: Create relese if tag commit contain a tag message
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          tag_name: '${{ needs.FindTagJob.outputs.outputTagJob }}'
+          release_name: 'Release ${{ needs.FindTagJob.outputs.outputTagJob }}'
+          draft: falses
+          prerelease: false
+
