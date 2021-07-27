@@ -1,4 +1,6 @@
 # SmartDogHouse-AWS-WebApp
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SmartDogHouse_SmartDogHouse-AWS-WebApp&metric=alert_status)](https://sonarcloud.io/dashboard?id=SmartDogHouse_SmartDogHouse-AWS-WebApp)
+[![CodeFactor](https://www.codefactor.io/repository/github/smartdoghouse/smartdoghouse-aws-webapp/badge)](https://www.codefactor.io/repository/github/smartdoghouse/smartdoghouse-aws-webapp)
 
 This is the back-end of the WebApp, hosted on **AWS**. 
 
