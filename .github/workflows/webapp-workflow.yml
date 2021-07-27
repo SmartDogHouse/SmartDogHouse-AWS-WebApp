@@ -30,7 +30,23 @@ jobs:
         working-directory: ./lambda
       - run: npm test
         working-directory: ./lambda
-
+      - name: Move coverage 
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch --all
+          git pull
+          cd ./lambda
+          mv -r ./coverage/ ../new-coverage
+          cd ../
+          git checkout gh-pages
+          git rm -r ./coverage/
+          git commit -m "Removed old cov"
+          mv ./new-coverage ./coverage/
+          git add ./coverage
+          git commit -m "Added new cov"
+          git push
+          
   CoverageJob:
         needs: [TestJob] #when finished this job
         if: success() #only on success
