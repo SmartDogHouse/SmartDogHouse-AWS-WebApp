@@ -30,18 +30,25 @@ jobs:
         working-directory: ./lambda
       - run: npm test
         working-directory: ./lambda
-
-  CoverageJob:
-        needs: [TestJob] #when finished this job
-        if: success() #only on success
-        runs-on: ubuntu-latest
-        steps:
-          - name: launch coverage
-            shell: bash
-            run: echo "skip"
-          
+      - name: Move coverage 
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch --all
+          git pull
+          cd ./lambda
+          mv ./coverage/ ../new-coverage
+          cd ../
+          git checkout gh-pages
+          git rm -r ./coverage/
+          git commit -m "Removed old cov"
+          mv ./new-coverage ./coverage/
+          git add ./coverage
+          git commit -m "Added new cov"
+          git push
+                   
   TelegramJobFailure:
-      needs: [CoverageJob] #when finished this job
+      needs: [TestJob] #when finished this job
       if: failure() # if its failed
       runs-on: ubuntu-latest
       steps:
@@ -60,7 +67,7 @@ jobs:
           disable_web_page_preview: true
 
   TelegramJobSuccess:
-        needs: [CoverageJob] #when finished this job
+        needs: [TestJob] #when finished this job
         if: success() #only on success
         runs-on: ubuntu-latest
         steps:
@@ -81,7 +88,7 @@ jobs:
 
   release-software:
     runs-on: ubuntu-latest
-    needs: CoverageJob
+    needs: TestJob
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
