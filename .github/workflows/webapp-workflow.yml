@@ -46,18 +46,9 @@ jobs:
           git add ./coverage
           git commit -m "Added new cov"
           git push
-          
-  CoverageJob:
-        needs: [TestJob] #when finished this job
-        if: success() #only on success
-        runs-on: ubuntu-latest
-        steps:
-          - name: launch coverage
-            shell: bash
-            run: echo "skip"
-          
+                   
   TelegramJobFailure:
-      needs: [CoverageJob] #when finished this job
+      needs: [TestJob] #when finished this job
       if: failure() # if its failed
       runs-on: ubuntu-latest
       steps:
@@ -76,7 +67,7 @@ jobs:
           disable_web_page_preview: true
 
   TelegramJobSuccess:
-        needs: [CoverageJob] #when finished this job
+        needs: [TestJob] #when finished this job
         if: success() #only on success
         runs-on: ubuntu-latest
         steps:
@@ -97,7 +88,7 @@ jobs:
 
   release-software:
     runs-on: ubuntu-latest
-    needs: CoverageJob
+    needs: TestJob
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
