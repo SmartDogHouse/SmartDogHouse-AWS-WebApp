@@ -4,7 +4,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   SmartDogHouse-Serverless
-  
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -18,7 +18,7 @@ Globals:
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
 #      MaxAge: "'600'"
-#      AllowCredentials: true 
+#      AllowCredentials: true
 
 Parameters:
   TableName:
@@ -37,7 +37,7 @@ Parameters:
     Type: String
     Default: "ESP"
     Description: (Required) Provide a topic for the IoT channel specific.
-    
+
 
 # More info about API Event Sources: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -48,11 +48,11 @@ Parameters:
 ##-----------------------------------------------------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------------------------------------------------
 
-Resources:  
+Resources:
 ########GET########
 
   GetEnvironmentLogs:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -60,13 +60,13 @@ Resources:
       Handler: app.getEnvironmentLogs
       Events:
         EnvironmentLogs:
-          Type: HttpApi 
+          Type: HttpApi
           Properties:
             Path: /view/logs/env
             Method: get
 
   GetTotalCosumption:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -74,13 +74,13 @@ Resources:
       Handler: app.getTotalCosumption
       Events:
         TotalConsumption:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/logs/dog/total
             Method: get
 
   GetDogs:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -88,13 +88,13 @@ Resources:
       Handler: app.getDogs
       Events:
         Dogs:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/dogs
             Method: get
 
   GetLogsByDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -102,13 +102,13 @@ Resources:
       Handler: app.getLogsByDog
       Events:
         LogsByDog:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/logs/dog
             Method: get
 
   GetLastVitalParamsValByDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -116,13 +116,13 @@ Resources:
       Handler: app.getLastVitalParamsValByDog
       Events:
         LastParams:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/logs/dog/last
             Method: get
 
   GetRolesByUser:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -130,13 +130,13 @@ Resources:
       Handler: app.getRolesByUser
       Events:
         Roles:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/user/roles
             Method: get
 
   GetUsersByRole:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -144,14 +144,14 @@ Resources:
       Handler: app.getUsersByRole
       Events:
         Users:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /view/roles/user
             Method: get
 
 ########POST########
   RemoveDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -159,12 +159,12 @@ Resources:
       Handler: app.removeDog
       Events:
         DogDeletion:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/dog/remove
             Method: post
   TransferDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -172,13 +172,13 @@ Resources:
       Handler: app.transferDog
       Events:
         DogTransfer:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/dog/transfer
-            Method: post    
+            Method: post
 
   UpdateDogStatus:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -186,12 +186,12 @@ Resources:
       Handler: app.updateDogStatus
       Events:
         NewDog:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/dog/status
             Method: post
   InsertNewDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -199,13 +199,13 @@ Resources:
       Handler: app.insertNewDog
       Events:
         NewDog:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/new/dog
             Method: post
 
   SetFoodScheduleByDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -213,13 +213,13 @@ Resources:
       Handler: app.setFoodScheduleByDog
       Events:
         FoodScheduleByDogSetting:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/schedule/dog
             Method: post
 
   SetVitalParamRangesBySize:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -227,13 +227,13 @@ Resources:
       Handler: app.setVitalParamRangesBySize
       Events:
         VitalParamRangesBySizeSetting:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/ranges/vital/size
             Method: post
 
   SetConsRangesBySize:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -241,13 +241,13 @@ Resources:
       Handler: app.setConsRangesBySize
       Events:
         ConsRangesBySizeSetting:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/ranges/cons/size
             Method: post
 
   SetConsRangesByDog:
-      Type: AWS::Serverless::Function 
+      Type: AWS::Serverless::Function
       Properties:
         CodeUri: lambda/
         Policies:
@@ -255,13 +255,13 @@ Resources:
         Handler: app.setConsRangesByDog
         Events:
           ConsRangesByDogSetting:
-            Type: Api 
+            Type: Api
             Properties:
               Path: /set/ranges/cons/dog
               Method: post
 
   SetFoodScheduleBySize:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -269,13 +269,13 @@ Resources:
       Handler: app.setFoodScheduleBySize
       Events:
         FoodScheduleBySizeSetting:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/schedule/size
             Method: post
 
   SetVitalParamRangesByDog:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -283,13 +283,13 @@ Resources:
       Handler: app.setVitalParamRangesByDog
       Events:
         VitalParamRangesByDogSetting:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /set/ranges/vital/dog
             Method: post
 
   SendMsgToMQTT:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Policies:
@@ -298,7 +298,7 @@ Resources:
       Handler: app.sendMsgToMQTT
       Events:
         VitalParamRangesByDogSetting1:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /send/mqtt/
             Method: post
@@ -310,7 +310,7 @@ Resources:
 ##-----------------------------------------------------------------------------------------------------------------------
 
   WaterConsumptionAlarm:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
       Handler: app.waterConsumptionAlarm
@@ -335,7 +335,7 @@ Resources:
             Enabled: true
 
   FoodConsumptionAlarm:
-      Type: AWS::Serverless::Function 
+      Type: AWS::Serverless::Function
       Properties:
         CodeUri: lambda/
         Handler: app.foodConsumptionAlarm
@@ -431,7 +431,7 @@ Resources:
       ApiId: !Ref SimpleNotificationWebSocket
       Description: Connect Integration
       IntegrationType: AWS_PROXY
-      IntegrationUri: 
+      IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
   DisconnectRoute:
@@ -451,7 +451,7 @@ Resources:
       ApiId: !Ref SimpleNotificationWebSocket
       Description: Disconnect Integration
       IntegrationType: AWS_PROXY
-      IntegrationUri: 
+      IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
   SendRoute:
@@ -471,7 +471,7 @@ Resources:
       ApiId: !Ref SimpleNotificationWebSocket
       Description: Send Integration
       IntegrationType: AWS_PROXY
-      IntegrationUri: 
+      IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
   Deployment:
