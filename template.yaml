@@ -377,7 +377,6 @@ Resources:
         IoTSpecific:
           Type: IoTRule
           Properties:
-            AwsIotSqlVersion: 2016-03-23
             Sql: !Sub "SELECT * FROM '${ESPspecificTopic}/#'"
 
   SendNotificationFunction:
@@ -401,7 +400,6 @@ Resources:
         IoTNotification:
           Type: IoTRule
           Properties:
-            AwsIotSqlVersion: 2016-03-23
             Sql: !Sub "SELECT * FROM '${NotificationsTopic}'"
 
 ##-----------------------------------------------------------------------------------------------------------------------
