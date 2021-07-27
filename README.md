@@ -1,6 +1,7 @@
 # SmartDogHouse-AWS-WebApp
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SmartDogHouse_SmartDogHouse-AWS-WebApp&metric=alert_status)](https://sonarcloud.io/dashboard?id=SmartDogHouse_SmartDogHouse-AWS-WebApp)
 [![CodeFactor](https://www.codefactor.io/repository/github/smartdoghouse/smartdoghouse-aws-webapp/badge)](https://www.codefactor.io/repository/github/smartdoghouse/smartdoghouse-aws-webapp)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2cde09679aab4aefb0de88b14d515063)](https://www.codacy.com/gh/SmartDogHouse/SmartDogHouse-AWS-WebApp/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SmartDogHouse/SmartDogHouse-AWS-WebApp&amp;utm_campaign=Badge_Grade)
 
 This is the back-end of the WebApp, hosted on **AWS**. 
 
