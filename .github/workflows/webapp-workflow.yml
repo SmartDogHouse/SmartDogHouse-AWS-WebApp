@@ -9,6 +9,9 @@ jobs:
     steps:
       - name: Setup Git repo
         uses: actions/checkout@v2
+      - name: Print branch
+        shell: bash
+        run: ce lambda
       - name: Test code
         uses: actions/setup-node@v2
         with:
