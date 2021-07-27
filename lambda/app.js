@@ -145,9 +145,9 @@ class QueryManager {
           'SK' : '#PROFILE#${chip_id}',
           'chip_id': '${chip_id}',
           'name': '${name}',
-          'size': '${size}',
+          'dog_size': ${size},
           'status': '${status}',
-          'cage_id': '${cage}'}`
+          'cage_id': ${cage}}`
 		}
 	}
 	setConsRangesByDog(chip_id, u_bound, l_bound, type) {
